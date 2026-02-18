@@ -205,7 +205,7 @@ CREATE TABLE `userdata` (
   `Waffenshopbuy` varchar(50) NOT NULL DEFAULT '00',
   `NextMapTimer` varchar(50) NOT NULL DEFAULT '0',
   `Lootbox` int(11) NOT NULL DEFAULT 0,
-  `Skins` text NOT NULL,
+  `Skins` varchar(255) NOT NULL,
   `SkinNumbers` int(11) NOT NULL DEFAULT 1,
   `LootboxenOpen` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1
