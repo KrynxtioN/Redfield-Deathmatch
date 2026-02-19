@@ -1,4 +1,4 @@
-# Redfield-Deathmatch
+# Redfield Deathmatch
 
 Redfield Deathmatch is a deathmatch PvP game mode that was developed in 2020. It includes lobbies (team vs team, free-for-all [only Deagle mode or Deagle/M4/MP5/rifle mode]), the ability to create your own lobbies and save them with VIP status, a leaderboard, collecting coins, and opening skin boxes.
 
