@@ -227,7 +227,7 @@ Language = {
 		["ScoreboardMessage5"] = "Status",
 		["ScoreboardMessage6"] = "Ping",
 		
-		["GDMCoinsMessage1"] = "Zahlungsmöglichkeiten: Paysafecard\nMit jedem Euro (1€) erhältst du einen Redfield Deathmatch-Coin\n\nBitte beachte, dass wir keinen bestimmten Betrag von deiner Paysafecard abziehen können, sondern nur die gesamte Paysafecard einlösen können. Trage den 16-stelligen Code in das untere Feld ein, binnen 24 Stunden wird dieser kontrolliert und sollte er gültig sein, erhältst du deine Coins.",
+		["GDMCoinsMessage1"] = "/",
 		["GDMCoinsMessage2"] = "Absenden",
 		["GDMCoinsMessage3"] = "Schließen",
 		["GDMCoinsMessage4"] = "Warte, bis deine aktuelle Anfrage bearbeitet wurde!",
