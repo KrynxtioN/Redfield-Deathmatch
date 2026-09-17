@@ -113,3 +113,41 @@ The gamemode supports:
 2. Create/import the required database tables.
 3. Configure the database connection for your environment (RegisterLogin/sRegisterLogin.lua).
 5. Start the resource on your MTA server.
+
+## 🎬 Media
+
+<p align="center">
+  <img src="Screenshots/1.png" width="350">
+  <img src="Screenshots/2.png" width="350">
+  <img src="Screenshots/3.png" width="350">   
+  <img src="Screenshots/4.png" width="350">
+  <img src="Screenshots/5.png" width="350">
+  <img src="Screenshots/6.png" width="350">   
+  <img src="Screenshots/7.png" width="350">
+  <img src="Screenshots/8.png" width="350">
+  <img src="Screenshots/9.png" width="350">
+  <img src="Screenshots/10.png" width="350">
+  <img src="Screenshots/11.png" width="350">   
+  <img src="Screenshots/12.png" width="350">
+  <img src="Screenshots/13.png" width="350">
+  <img src="Screenshots/14.png" width="350">   
+  <img src="Screenshots/15.png" width="350">
+  <img src="Screenshots/16.png" width="350">
+  <img src="Screenshots/17.png" width="350">
+  <img src="Screenshots/18.png" width="350">
+  <img src="Screenshots/19.png" width="350">   
+  <img src="Screenshots/20.png" width="350">
+  <img src="Screenshots/21.png" width="350">
+</p>
+
+## 📊 Statistics 
+
+|Category|Amount|
+|---|---|
+LUA files|40|
+other files|363|
+functions|313|
+lines|5583|
+characters|266772|
+comment-lines|367|
+comment-characters|5027|
