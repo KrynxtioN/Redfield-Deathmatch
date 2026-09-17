@@ -111,26 +111,26 @@ function checkStuffAfterDeath(damager,player)
 	setElementData(damager,"TemporaererKill",getElementData(damager,"TemporaererKill")+1)
 	setElementData(damager,"KillsGesamt",getElementData(damager,"KillsGesamt")+1)
 	local KillsGesamt = getElementData(damager,"KillsGesamt")
-	if(KillsGesamt == 100)then setPlayerAchievement(damager,8)end
-	if(KillsGesamt == 250)then setPlayerAchievement(damager,9)end
-	if(KillsGesamt == 500)then setPlayerAchievement(damager,10)end
-	if(KillsGesamt == 750)then setPlayerAchievement(damager,11)end
-	if(KillsGesamt == 1000)then setPlayerAchievement(damager,12)end
-	if(KillsGesamt == 2500)then setPlayerAchievement(damager,13)end
-	if(KillsGesamt == 5000)then setPlayerAchievement(damager,14)end
-	if(KillsGesamt == 7500)then setPlayerAchievement(damager,15)end
-	if(KillsGesamt == 10000)then setPlayerAchievement(damager,16)end
+	if(KillsGesamt == 10)then setPlayerAchievement(damager,8)end
+	if(KillsGesamt == 25)then setPlayerAchievement(damager,9)end
+	if(KillsGesamt == 50)then setPlayerAchievement(damager,10)end
+	if(KillsGesamt == 75)then setPlayerAchievement(damager,11)end
+	if(KillsGesamt == 100)then setPlayerAchievement(damager,12)end
+	if(KillsGesamt == 250)then setPlayerAchievement(damager,13)end
+	if(KillsGesamt == 500)then setPlayerAchievement(damager,14)end
+	if(KillsGesamt == 750)then setPlayerAchievement(damager,15)end
+	if(KillsGesamt == 1000)then setPlayerAchievement(damager,16)end
 end
 
 --// Tode Achievements checken
 function checkTodeAchievement(player)
 	local TodeGesamt = getElementData(player,"TodeGesamt")
-	if(TodeGesamt == 100)then setPlayerAchievement(player,17)end
-	if(TodeGesamt == 250)then setPlayerAchievement(player,18)end
-	if(TodeGesamt == 500)then setPlayerAchievement(player,19)end
-	if(TodeGesamt == 1000)then setPlayerAchievement(player,20)end
-	if(TodeGesamt == 2500)then setPlayerAchievement(player,21)end
-	if(TodeGesamt == 5000)then setPlayerAchievement(player,22)end
-	if(TodeGesamt == 7500)then setPlayerAchievement(player,23)end
-	if(TodeGesamt == 10000)then setPlayerAchievement(player,24)end
+	if(TodeGesamt == 10)then setPlayerAchievement(player,17)end
+	if(TodeGesamt == 25)then setPlayerAchievement(player,18)end
+	if(TodeGesamt == 50)then setPlayerAchievement(player,19)end
+	if(TodeGesamt == 100)then setPlayerAchievement(player,20)end
+	if(TodeGesamt == 250)then setPlayerAchievement(player,21)end
+	if(TodeGesamt == 500)then setPlayerAchievement(player,22)end
+	if(TodeGesamt == 750)then setPlayerAchievement(player,23)end
+	if(TodeGesamt == 1000)then setPlayerAchievement(player,24)end
 end

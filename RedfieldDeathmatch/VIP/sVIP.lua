@@ -1,7 +1,7 @@
 VIP = {
 	["Farbcodes"] = {
 		[1] = "#c2883b",
-		[2] = "#f0f0f0",
+		[2] = "#C0C0C0",
 		[3] = "#e8b923",
 	},
 }
@@ -67,17 +67,23 @@ function VIP.checkStatus(player)
 end
 
 --// Teleporter in den VIP-Bereich
-local TeleporterRein = createPickup(1727.0201416016,-1637.0385742188,20.217395782471,3,1318,50)
+local TeleporterRein = createPickup(259.87393188477,-15.097911834717,2.0729942321777,3,1318,50)
 local TeleporterRaus = createPickup(1727.0236816406,-1637.8325195313,20.222938537598,3,1318,50)
 setElementInterior(TeleporterRaus,18)
 
 addEventHandler("onPickupHit",TeleporterRein,function(player)
 	if(getElementData(player,"loggedin") == 1 and not(isPedInVehicle(player)) and getElementDimension(player) == getElementDimension(source))then
 		if(isPremium(player))then
-			setElementPosition(player,1727.1295166016,-1640.1915283203,20.224090576172)
-			setElementRotation(player,0,0,180)
-			setElementInterior(player,18)
-			setElementDimension(player,0)
+			fadeCamera(player,false,0.5)
+			setTimer(function(player)
+				if(isElement(player))then
+					setElementPosition(player,1727.1295166016,-1640.1915283203,20.224090576172)
+					setElementRotation(player,0,0,180)
+					setElementInterior(player,18)
+					setElementDimension(player,0)
+					fadeCamera(player,true,0.5)
+				end
+			end,500,1,player)
 		else infobox(player,loc(player,"VIPMessage1"),125,0,0)end
 	end
 end)
@@ -85,10 +91,20 @@ end)
 addEventHandler("onPickupHit",TeleporterRaus,function(player)
 	if(getElementData(player,"loggedin") == 1 and not(isPedInVehicle(player)) and getElementDimension(player) == getElementDimension(source))then
 		if(isPremium(player))then
-			setElementPosition(player,1726.9547119141,-1634.8270263672,20.216316223145)
-			setElementRotation(player,0,0,0)
-			setElementInterior(player,0)
-			setElementDimension(player,0)
+			fadeCamera(player,false,0.5)
+			setTimer(function(player)
+				if(isElement(player))then
+					setElementPosition(player,262.37243652344,-14.983618736267,2.0755796432495)
+					setElementInterior(player,0)
+					setElementDimension(player,0)
+					setTimer(function(player)
+						if(isElement(player))then
+							setElementRotation(player,0,0,270)
+						end
+					end,500,1,player)
+					fadeCamera(player,true,0.5)
+				end
+			end,500,1,player)
 		else infobox(player,loc(player,"VIPMessage1"),125,0,0)end
 	end
 end)
@@ -100,6 +116,16 @@ addEventHandler("VIP.buy",root,function(kosten,type)
 	local time = getRealTime()
 	local timestamp = time.timestamp
 	local Bronze,Silber,Gold = tonumber(getElementData(client,"VIPBronzeZeit")),tonumber(getElementData(client,"VIPSilberZeit")),tonumber(getElementData(client,"VIPGoldZeit"))
+
+	if(type == "Bronze" and (hasSilberPremium(client) or hasGoldPremium(client)))then
+		infobox(client,loc(client,"VIPMessage23"),125,0,0)
+		return
+	end
+	if(type == "Silber" and hasGoldPremium(client))then
+		infobox(client,loc(client,"VIPMessage24"),125,0,0)
+		return
+	end
+
 	if(getElementData(client,"GDMCoins") >= kosten)then
 		setElementData(client,"GDMCoins",getElementData(client,"GDMCoins")-kosten)
 		if(type == "Bronze")then
@@ -112,6 +138,7 @@ addEventHandler("VIP.buy",root,function(kosten,type)
 			infobox(client,loc(client,"VIPMessage15"),0,125,0)
 		end
 		if(type == "Silber")then
+			setElementData(client,"VIPBronzeZeit",0)
 			if(Silber == 0)then
 				setElementData(client,"VIPSilberZeit",time.timestamp + (30*86400))
 				RegisterLogin.spawnEingangshalle(client)
@@ -121,6 +148,8 @@ addEventHandler("VIP.buy",root,function(kosten,type)
 			infobox(client,loc(client,"VIPMessage16"),0,125,0)
 		end
 		if(type == "Gold")then
+			setElementData(client,"VIPBronzeZeit",0)
+			setElementData(client,"VIPSilberZeit",0)
 			if(Gold == 0)then
 				setElementData(client,"VIPGoldZeit",time.timestamp + (30*86400))
 				RegisterLogin.spawnEingangshalle(client)
@@ -133,12 +162,10 @@ addEventHandler("VIP.buy",root,function(kosten,type)
 		if(hasBronzePremium(client))then
 			setElementData(client,"PremiumLevel",1)
 			outputChatBox(loc(client,"RegisterLoginMessage14"):format(TimestampToDate(getPlayerData("userdata","Username",getPlayerName(client),"VIPBronzeZeit"))),client,0,125,0)
-		end
-		if(hasSilberPremium(client))then
+		elseif(hasSilberPremium(client))then
 			setElementData(client,"PremiumLevel",2)
 			outputChatBox(loc(client,"RegisterLoginMessage15"):format(TimestampToDate(getPlayerData("userdata","Username",getPlayerName(client),"VIPSilberZeit"))),client,0,125,0)
-		end
-		if(hasGoldPremium(client))then
+		elseif(hasGoldPremium(client))then
 			setElementData(client,"PremiumLevel",3)
 			outputChatBox(loc(client,"RegisterLoginMessage16"):format(TimestampToDate(getPlayerData("userdata","Username",getPlayerName(client),"VIPGoldZeit"))),client,0,125,0)
 		end

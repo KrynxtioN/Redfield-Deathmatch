@@ -41,42 +41,224 @@ end
 
 --// Lootbox öffnen/schließen
 function Lootbox.open()
-	if(getElementData(localPlayer,"Lootbox") >= 1)then
-		setWindowDatas("reset")
-		Lootbox.counter = 0
-		Lootbox.text = ""
-		setElementData(localPlayer,"SkinZiehung",true)
-		addEventHandler("onClientRender",root,Lootbox.renderSkinZiehung)
-		Lootbox.skinIDTimer = setTimer(function()
-			Lootbox.generateSkin()
-			Lootbox.counter = Lootbox.counter + 1
-			if(Lootbox.counter >= 50)then
-				killTimer(Lootbox.skinIDTimer)
-				Lootbox.text = Lootbox.skinType
-				bindKey("space","down",Lootbox.close)
-				triggerServerEvent("Lootbox.givePlayerSkin",localPlayer,Lootbox.skinID)
-				setElementData(localPlayer,"SkinZiehung",false)
-				if(Lootbox.skinTypeNr == 1)then triggerServerEvent("setPlayerAchievement",localPlayer,localPlayer,2)end
-				if(Lootbox.skinTypeNr == 2)then triggerServerEvent("setPlayerAchievement",localPlayer,localPlayer,3)end
-				if(Lootbox.skinTypeNr == 3)then triggerServerEvent("setPlayerAchievement",localPlayer,localPlayer,4)end
-				if(Lootbox.skinTypeNr == 4)then triggerServerEvent("setPlayerAchievement",localPlayer,localPlayer,5)end
-				if(Lootbox.skinTypeNr == 5)then triggerServerEvent("setPlayerAchievement",localPlayer,localPlayer,6)end
-				if(Lootbox.skinTypeNr == 6)then triggerServerEvent("setPlayerAchievement",localPlayer,localPlayer,7)end
-			end
-		end,50,0)
-	else infobox(loc("LootboxMessage1"),125,0,0)end
+	destroyElement(GUIEditor.window[1])
+	Lootbox.counter = 0
+	Lootbox.text = ""
+	Lootbox.openingFinished = false
+	Lootbox.openingStart = getTickCount()
+	Lootbox.nextSkinChange = 0
+	Lootbox.finalAnimation = nil
+	Lootbox.generateSkin()
+	setElementData(localPlayer,"SkinZiehung",true)
+	addEventHandler("onClientRender",root,Lootbox.renderSkinZiehung)
 end
 addEvent("Lootbox.open",true)
 addEventHandler("Lootbox.open",root,Lootbox.open)
 
+function Lootbox.finishOpening()
+	Lootbox.generateSkin()
+	Lootbox.text = Lootbox.skinType
+	Lootbox.openingFinished = true
+	Lootbox.finalAnimation = getTickCount()
+
+	bindKey("space","down",Lootbox.close)
+	triggerServerEvent("Lootbox.givePlayerSkin",localPlayer,Lootbox.skinID)
+
+	if(Lootbox.skinTypeNr == 1)then triggerServerEvent("setPlayerAchievement",localPlayer,localPlayer,2)end
+	if(Lootbox.skinTypeNr == 2)then triggerServerEvent("setPlayerAchievement",localPlayer,localPlayer,3)end
+	if(Lootbox.skinTypeNr == 3)then triggerServerEvent("setPlayerAchievement",localPlayer,localPlayer,4)end
+	if(Lootbox.skinTypeNr == 4)then triggerServerEvent("setPlayerAchievement",localPlayer,localPlayer,5)end
+	if(Lootbox.skinTypeNr == 5)then triggerServerEvent("setPlayerAchievement",localPlayer,localPlayer,6)end
+	if(Lootbox.skinTypeNr == 6)then triggerServerEvent("setPlayerAchievement",localPlayer,localPlayer,7)end
+end
+
 function Lootbox.close()
 	removeEventHandler("onClientRender",root,Lootbox.renderSkinZiehung)
-	unbindKey("space","down",Lootbox.renderSkinZiehung)
+	unbindKey("space","down",Lootbox.close)
+	setWindowDatas("reset")
+	setElementData(localPlayer,"SkinZiehung",false)
 end
 
 function Lootbox.renderSkinZiehung()
-	dxDrawImage(874*(x/1920), 407*(y/1080), 172*(x/1920), 267*(y/1080), "Files/Images/Skins/Skinid"..Lootbox.skinID..".jpg", 0, 0, 0, tocolor(255, 255, 255, 255), false)
-	dxDrawText(Lootbox.text, 751*(x/1920), 684*(y/1080), 1170*(x/1920), 734*(y/1080), tocolor(255, 255, 255, 255), 1.00, ScoreboardFont2, "center", "center", false, false, false, false, false)
+	local now = getTickCount()
+	local elapsed = now-Lootbox.openingStart
+
+	if(Lootbox.openingFinished == false)then
+		local delay = 50
+
+		if(elapsed >= 1500)then
+			delay = 75
+		end
+		if(elapsed >= 2500)then
+			delay = 110
+		end
+		if(elapsed >= 3500)then
+			delay = 160
+		end
+		if(elapsed >= 4300)then
+			delay = 230
+		end
+		if(elapsed >= 5000)then
+			delay = 320
+		end
+
+		if(now >= Lootbox.nextSkinChange)then
+			Lootbox.generateSkin()
+			Lootbox.nextSkinChange = now+delay
+		end
+
+		if(elapsed >= 6000)then
+			Lootbox.finishOpening()
+		end
+	end
+
+	local imageX = 874*(x/1920)
+	local imageY = 407*(y/1080)
+	local imageW = 172*(x/1920)
+	local imageH = 267*(y/1080)
+
+	if(Lootbox.openingFinished == false)then
+		local pulse = 50+math.floor((math.sin(now/100)+1)*35)
+
+		dxDrawRectangle(
+			854*(x/1920),
+			387*(y/1080),
+			212*(x/1920),
+			307*(y/1080),
+			tocolor(58,98,242,pulse),
+			false
+		)
+
+		dxDrawRectangle(
+			864*(x/1920),
+			397*(y/1080),
+			192*(x/1920),
+			287*(y/1080),
+			tocolor(0,0,0,180),
+			false
+		)
+	end
+
+	if(Lootbox.openingFinished == true and Lootbox.finalAnimation)then
+		local finalElapsed = now-Lootbox.finalAnimation
+
+		if(finalElapsed <= 500)then
+			local progress = finalElapsed/500
+			local scale = 1.25-(0.25*progress)
+
+			local newW = imageW*scale
+			local newH = imageH*scale
+
+			imageX = imageX-(newW-imageW)/2
+			imageY = imageY-(newH-imageH)/2
+			imageW = newW
+			imageH = newH
+		end
+	end
+
+	dxDrawImage(
+		imageX,
+		imageY,
+		imageW,
+		imageH,
+		"Files/Images/Skins/Skinid"..Lootbox.skinID..".jpg",
+		0,
+		0,
+		0,
+		tocolor(255,255,255,255),
+		false
+	)
+
+	if(Lootbox.openingFinished == false)then
+		local lineAlpha = 120+math.floor((math.sin(now/80)+1)*60)
+
+		dxDrawLine(
+			854*(x/1920),
+			387*(y/1080),
+			1066*(x/1920),
+			387*(y/1080),
+			tocolor(58,98,242,lineAlpha),
+			3,
+			false
+		)
+
+		dxDrawLine(
+			854*(x/1920),
+			694*(y/1080),
+			1066*(x/1920),
+			694*(y/1080),
+			tocolor(58,98,242,lineAlpha),
+			3,
+			false
+		)
+
+		dxDrawLine(
+			854*(x/1920),
+			387*(y/1080),
+			854*(x/1920),
+			694*(y/1080),
+			tocolor(58,98,242,lineAlpha),
+			3,
+			false
+		)
+
+		dxDrawLine(
+			1066*(x/1920),
+			387*(y/1080),
+			1066*(x/1920),
+			694*(y/1080),
+			tocolor(58,98,242,lineAlpha),
+			3,
+			false
+		)
+	end
+
+	if(Lootbox.openingFinished == true and Lootbox.finalAnimation)then
+		local finalElapsed = now-Lootbox.finalAnimation
+
+		if(finalElapsed <= 500)then
+			local alpha = 180-math.floor((finalElapsed/500)*180)
+
+			dxDrawRectangle(
+				0,
+				0,
+				x,
+				y,
+				tocolor(255,255,255,alpha),
+				false
+			)
+		end
+	end
+
+	if(Lootbox.openingFinished == true)then
+		local textScale = 1.00
+
+		if(Lootbox.finalAnimation)then
+			local finalElapsed = now-Lootbox.finalAnimation
+
+			if(finalElapsed <= 500)then
+				textScale = 1.50-(0.50*(finalElapsed/500))
+			end
+		end
+
+		dxDrawText(
+			Lootbox.text,
+			751*(x/1920),
+			684*(y/1080),
+			1170*(x/1920),
+			734*(y/1080),
+			tocolor(255,255,255,255),
+			textScale,
+			"default-bold",
+			"center",
+			"center",
+			false,
+			false,
+			false,
+			false,
+			false
+		)
+	end
 end
 
 --// Fenster öffnen
@@ -105,9 +287,12 @@ addEventHandler("Lootbox.openWindow",root,function()
 		triggerServerEvent("Lootbox.loadStuff",localPlayer)
 		
 		addEventHandler("onClientGUIClick",GUIEditor.gridlist[1],function()
-			local clicked = guiGridListGetItemText(GUIEditor.gridlist[1],guiGridListGetSelectedItem(GUIEditor.gridlist[1]),1)
-			if(clicked ~= "")then
-				guiStaticImageLoadImage(GUIEditor.staticimage[1],"Files/Images/Skins/Skinid"..clicked..".jpg")
+			local row = guiGridListGetSelectedItem(GUIEditor.gridlist[1])
+			if(row ~= -1)then
+				local clicked = guiGridListGetItemData(GUIEditor.gridlist[1],row,skin)
+				if(clicked)then
+					guiStaticImageLoadImage(GUIEditor.staticimage[1],"Files/Images/Skins/Skinid"..clicked..".jpg")
+				end
 			end
 		end,false)
 		
@@ -124,9 +309,12 @@ addEventHandler("Lootbox.openWindow",root,function()
 		end,false)
 		
 		addEventHandler("onClientGUIClick",GUIEditor.button[4],function()
-			local clicked = guiGridListGetItemText(GUIEditor.gridlist[1],guiGridListGetSelectedItem(GUIEditor.gridlist[1]),1)
-			if(clicked ~= "")then
-				triggerServerEvent("Lootbox.useSkin",localPlayer,clicked)
+			local row = guiGridListGetSelectedItem(GUIEditor.gridlist[1])
+			if(row ~= -1)then
+				local clicked = guiGridListGetItemData(GUIEditor.gridlist[1],row,skin)
+				if(clicked)then
+					triggerServerEvent("Lootbox.useSkin",localPlayer,clicked)
+				else infobox(loc("LootboxMessage21"),125,0,0)end
 			else infobox(loc("LootboxMessage21"),125,0,0)end
 		end,false)
 	end
@@ -141,7 +329,8 @@ addEventHandler("Lootbox.refreshSkins",root,function(skins)
 		if(#skins >= 1)then
 			for _,v in pairs(skins)do
 				local row = guiGridListAddRow(GUIEditor.gridlist[1])
-				guiGridListSetItemText(GUIEditor.gridlist[1],row,skin,v[1],false,false)
+				guiGridListSetItemText(GUIEditor.gridlist[1],row,skin,loc("LootboxMessage22").." "..v[1],false,false)
+				guiGridListSetItemData(GUIEditor.gridlist[1],row,skin,v[1])
 			end
 		end
 	end

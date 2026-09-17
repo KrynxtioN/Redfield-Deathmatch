@@ -34,9 +34,10 @@ addEventHandler("DeagleArena.createLobby",root,function(limit,willkommensnachric
 			if(hasBronzePremium(client))then if(limit > 6)then limit = 6 end end
 		else
 			premium = 0
+			if(tonumber(map) > 1)then infobox(client,loc(client,"DeagleArenaMessage63"),125,0,0) end
 			map = 1
+			outputChatBox(loc(client,"DeagleArenaMessage62"),client,0,150,0)
 			if(limit > 4)then limit = 4 end
-			willkommensnachricht = "Du möchtest eine eigene Lobby, die jederzeit verfügbar ist und erweiterte Einstellungen? Mit Premium ist dies möglich!"
 		end
 		DeagleArena.activeLobbys = DeagleArena.activeLobbys + 1
 		DeagleArena.lobbys[DeagleArena.activeLobbys] = {
@@ -86,6 +87,7 @@ addEventHandler("DeagleArena.settingsName",root,function(name)
 		if(isPremium(client))then
 			dbExec(handler,"UPDATE deaglelobbys SET Name = '"..name.."' WHERE Besitzer = '"..getPlayerName(client).."'")
 		end
+		triggerClientEvent(client,"DeagleArena.updateSettingsWindow",client,DeagleArena.lobbys[LobbyID])
 	else infobox(client,loc(client,"DeagleArenaMessage3"),125,0,0)end
 end)
 
@@ -108,7 +110,7 @@ addEventHandler("DeagleArena.settingsLimit",root,function(limit)
 					return false
 				end
 			elseif(hasGoldPremium(client))then
-				return true
+				
 			else
 				if(limit > 4)then
 					infobox(client,loc(client,"DeagleArenaMessage27"),125,0,0)
@@ -121,6 +123,7 @@ addEventHandler("DeagleArena.settingsLimit",root,function(limit)
 		if(isPremium(client))then
 			dbExec(handler,"UPDATE deaglelobbys SET SpielerLimit = '"..limit.."' WHERE Besitzer = '"..getPlayerName(client).."'")
 		end
+		triggerClientEvent(client,"DeagleArena.updateSettingsWindow",client,DeagleArena.lobbys[LobbyID])
 	else infobox(client,loc(client,"DeagleArenaMessage6"),125,0,0)end
 end)
 
@@ -134,6 +137,7 @@ addEventHandler("DeagleArena.settingsWillkommensnachricht",root,function(willkom
 			DeagleArena.lobbys[LobbyID]["Willkommensnachricht"] = willkommensnachricht
 			dbExec(handler,"UPDATE deaglelobbys SET Willkommensnachricht = '"..willkommensnachricht.."' WHERE Besitzer = '"..getPlayerName(client).."'")
 			infobox(client,loc(client,"DeagleArenaMessage12"),0,125,0)
+			triggerClientEvent(client,"DeagleArena.updateSettingsWindow",client,DeagleArena.lobbys[LobbyID])
 		else infobox(client,loc(client,"DeagleArenaMessage11"),125,0,0)end
 	else infobox(client,loc(client,"DeagleArenaMessage10"),125,0,0)end
 end)
@@ -148,9 +152,11 @@ addEventHandler("DeagleArena.settingsMap",root,function(map)
 			DeagleArena.lobbys[LobbyID]["Map"] = map
 			dbExec(handler,"UPDATE deaglelobbys SET Map = '"..map.."' WHERE Besitzer = '"..getPlayerName(client).."'")
 			infobox(client,loc(client,"DeagleArenaMessage15"),0,125,0)
+			triggerClientEvent(client,"DeagleArena.updateSettingsWindow",client,DeagleArena.lobbys[LobbyID])
 			
 			for _,v in pairs(getElementsByType("player"))do
-				if(getElementData(v,"Lobby") == "DeagleArena" and getElementDimension(v) == getElementData(client,"LobbyID"))then
+				if(getElementData(v,"Lobby") == "DeagleArena" and getElementData(v,"LobbyID") == LobbyID)then
+					if(isTimer(DeagleArena.timer[v]))then killTimer(DeagleArena.timer[v]) end
 					DeagleArena.spawnPlayer(v)
 				end
 			end
@@ -169,6 +175,7 @@ addEventHandler("DeagleArena.settingsPasswort",root,function(passwort)
 		if(isPremium(client))then
 			dbExec(handler,"UPDATE deaglelobbys SET Passwort = '"..passwort.."' WHERE Besitzer = '"..getPlayerName(client).."'")
 		end
+		triggerClientEvent(client,"DeagleArena.updateSettingsWindow",client,DeagleArena.lobbys[LobbyID])
 	else infobox(client,loc(client,"DeagleArenaMessage16"),125,0,0)end
 end)
 
@@ -178,9 +185,8 @@ addEventHandler("DeagleArena.deleteLobby",root,function()
 	local LobbyID = getElementData(client,"LobbyID")
 	local besitzer = DeagleArena.lobbys[LobbyID]["Besitzer"]
 	if(besitzer == getPlayerName(client))then
-		DeagleArena.lobbys[LobbyID] = nil
 		infobox(client,loc(client,"DeagleArenaMessage19"),0,125,0)
-		if(isPremium(client))then
+		if(DeagleArena.lobbys[LobbyID]["Premium"] == 1)then
 			dbExec(handler,"DELETE FROM deaglelobbys WHERE Besitzer = '"..getPlayerName(client).."'")
 		end
 		for _,v in pairs(getElementsByType("player"))do
@@ -190,6 +196,7 @@ addEventHandler("DeagleArena.deleteLobby",root,function()
 				end
 			end
 		end
+		DeagleArena.lobbys[LobbyID] = nil
 		triggerClientEvent(client,"setWindowDatas",client,"reset")
 	else infobox(client,loc(client,"DeagleArenaMessage18"),125,0,0)end
 end)
@@ -273,8 +280,23 @@ function DeagleArena.spawnPlayer(player)
 end
 
 --// Was passiert, wenn der Spieler in einer Deagle Lobby stirbt
-addEventHandler("onPlayerWasted",root,function()
+addEventHandler("onPlayerWasted",root,function(ammo,attacker,weapon,bodypart)
 	if(getElementData(source,"Lobby") == "DeagleArena")then
+		local victimName = getPlayerName(source)
+		local killfeedText
+		local lobbyID = getElementData(source,"LobbyID")
+
+		if(isElement(attacker) and getElementType(attacker) == "player" and attacker ~= source)then
+			killfeedText = victimName.." -> "..getPlayerName(attacker).." ☠"
+		else
+			killfeedText = victimName.." ☠"
+		end
+
+		for _,v in pairs(getElementsByType("player"))do
+			if(getElementData(v,"loggedin") == 1 and getElementData(v,"Lobby") == "DeagleArena" and getElementData(v,"LobbyID") == lobbyID)then
+				triggerClientEvent(v,"DeagleArena.addKillfeed",resourceRoot,killfeedText)
+			end
+		end
 		setElementData(source,"TodeDeagleArena",getElementData(source,"TodeDeagleArena")+1)
 		setElementData(source,"TodeGesamt",getElementData(source,"TodeGesamt")+1)
 		DeagleArena.timer[source] = setTimer(function(source)
@@ -291,10 +313,13 @@ addEventHandler("onPlayerQuit",root,function()
 	if(isTimer(DeagleArena.timer[source]))then killTimer(DeagleArena.timer[source])end
 	if(getElementData(source,"Lobby") == "DeagleArena")then
 		local ID = getElementData(source,"LobbyID")
-		DeagleArena.lobbys[ID]["SpielerInLobby"] = DeagleArena.lobbys[ID]["SpielerInLobby"] - 1
-		if(DeagleArena.lobbys[ID]["SpielerInLobby"] == 0)then
-			if(DeagleArena.lobbys[ID]["Premium"] == 0)then
-				DeagleArena.lobbys[ID] = nil
+		if(DeagleArena.lobbys[ID])then
+			DeagleArena.lobbys[ID]["SpielerInLobby"] = DeagleArena.lobbys[ID]["SpielerInLobby"] - 1
+			if(DeagleArena.lobbys[ID]["SpielerInLobby"] <= 0)then
+				DeagleArena.lobbys[ID]["SpielerInLobby"] = 0
+				if(DeagleArena.lobbys[ID]["Premium"] == 0)then
+					DeagleArena.lobbys[ID] = nil
+				end
 			end
 		end
 	end
@@ -305,16 +330,20 @@ addCommandHandler("leave",function(player)
 	if(getElementData(player,"loggedin") == 1 and getElementData(player,"Lobby") == "DeagleArena")then
 		if(isTimer(DeagleArena.timer[player]))then killTimer(DeagleArena.timer[player])end
 		local ID = getElementData(player,"LobbyID")
-		DeagleArena.lobbys[ID]["SpielerInLobby"] = DeagleArena.lobbys[ID]["SpielerInLobby"] - 1
-		if(DeagleArena.lobbys[ID]["SpielerInLobby"] == 0)then
-			if(DeagleArena.lobbys[ID]["Premium"] == 0)then
-				DeagleArena.lobbys[ID] = nil
+		if(DeagleArena.lobbys[ID])then
+			DeagleArena.lobbys[ID]["SpielerInLobby"] = DeagleArena.lobbys[ID]["SpielerInLobby"] - 1
+			if(DeagleArena.lobbys[ID]["SpielerInLobby"] <= 0)then
+				DeagleArena.lobbys[ID]["SpielerInLobby"] = 0
+				if(DeagleArena.lobbys[ID]["Premium"] == 0)then
+					DeagleArena.lobbys[ID] = nil
+				end
 			end
 		end
 		RegisterLogin.spawnEingangshalle(player)
 		RegisterLogin.savePlayerDatas(player)
 		setElementData(player,"TemporaererDamage",0)
 		setElementData(player,"TemporaererKill",0)
+		triggerClientEvent(player,"setWindowDatas",player,"reset")
 	end
 end)
 
@@ -329,6 +358,6 @@ end)
 function DeagleArena.openEinstellungen(player)
 	if(getElementData(player,"loggedin") == 1 and getElementData(player,"Lobby") == "DeagleArena")then
 		local ID = getElementData(player,"LobbyID")
-		triggerClientEvent(player,"DeagleArena.openEinstellungen",player,DeagleArena.lobbys[ID]["Besitzer"])
+		triggerClientEvent(player,"DeagleArena.openEinstellungen",player,DeagleArena.lobbys[ID]["Besitzer"],DeagleArena.lobbys[ID])
 	end
 end

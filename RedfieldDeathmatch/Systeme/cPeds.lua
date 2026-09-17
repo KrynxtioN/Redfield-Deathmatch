@@ -32,22 +32,41 @@ addEventHandler("onClientRender",root,function()
 		if(getElementDimension(localPlayer) == getElementDimension(v) and getElementInterior(localPlayer) == getElementInterior(v))then
 			local px,py,pz = getPedBonePosition(v,8)
 			local lx,ly,lz = getPedBonePosition(localPlayer,8)
-				
+			
 			if(getDistanceBetweenPoints3D(px,py,pz,lx,ly,lz) <= 15 and isLineOfSightClear(px,py,pz,lx,ly,lz,true,false,false,true,false))then
 				if(getElementData(v,"PedName"))then
 					if(not(isPedDead(v)))then
 						local worldx,worldy = getScreenFromWorldPosition(px,py,pz+0.5,1000,true)
 						
 						if(getDistanceBetweenPoints3D(px,py,pz,lx,ly,lz) > 1)then
-							scale = 0.6 - (getDistanceBetweenPoints3D(px,py,pz,lx,ly,lz)/70)
+							scale = 0.60 - (getDistanceBetweenPoints3D(px,py,pz,lx,ly,lz)/80)
 						else
-							scale = 0.6
+							scale = 0.60
 						end
 						
 						if(worldx and worldy)then
 							if(getElementData(localPlayer,"elementClicked") ~= true)then
-								dxDrawText(getElementData(v,"PedName"),worldx,worldy,worldx,worldy,tocolor(0,255,0),scale,"bankgothic","center","center")
-								dxDrawText(loc("PedMessage1"),worldx-2,worldy+25,worldx,worldy,tocolor(0,255,0),scale - 0.2,"bankgothic","center","center")
+								local name = getElementData(v,"PedName")
+								local message = loc("PedMessage1")
+								local messageScale = scale - 0.1
+								
+								-- Schwarze Outline Name
+								dxDrawText(name,worldx-2,worldy,worldx-2,worldy,tocolor(0,0,0,255),scale,"bankgothic","center","center")
+								dxDrawText(name,worldx+2,worldy,worldx+2,worldy,tocolor(0,0,0,255),scale,"bankgothic","center","center")
+								dxDrawText(name,worldx,worldy-2,worldx,worldy-2,tocolor(0,0,0,255),scale,"bankgothic","center","center")
+								dxDrawText(name,worldx,worldy+2,worldx,worldy+2,tocolor(0,0,0,255),scale,"bankgothic","center","center")
+								
+								-- Name
+								dxDrawText(name,worldx,worldy,worldx,worldy,tocolor(0,255,0,255),scale,"bankgothic","center","center")
+								
+								-- Schwarze Outline Beschreibung
+								dxDrawText(message,worldx-4,worldy+25,worldx-2,worldy,tocolor(0,0,0,255),messageScale,"bankgothic","center","center")
+								dxDrawText(message,worldx,worldy+25,worldx+2,worldy,tocolor(0,0,0,255),messageScale,"bankgothic","center","center")
+								dxDrawText(message,worldx-2,worldy+23,worldx,worldy-2,tocolor(0,0,0,255),messageScale,"bankgothic","center","center")
+								dxDrawText(message,worldx-2,worldy+27,worldx,worldy+2,tocolor(0,0,0,255),messageScale,"bankgothic","center","center")
+								
+								-- Beschreibung
+								dxDrawText(message,worldx-2,worldy+25,worldx,worldy,tocolor(0,255,0,255),messageScale,"bankgothic","center","center")
 							end
 						end
 					end

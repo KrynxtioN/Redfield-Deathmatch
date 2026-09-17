@@ -137,7 +137,7 @@ addCommandHandler("resetscore",function(player)
 	if(getElementData(player,"loggedin") == 1)then
 		if(getElementData(player,"Lobby") == "TacticsArena")then
 			local Kills,Tode = getElementData(player,"KillsTacticArena"),getElementData(player,"TodeTacticArena")
-			local Costs = Kills*50 + (Tode*75)
+			local Costs = Kills * 3 + (Tode * 5)
 			if(hasBronzePremium(player))then Costs = Costs - (Costs/100*25) end
 			if(hasSilberPremium(player))then Costs = Costs - (Costs/100*50) end
 			if(hasGoldPremium(player))then Costs = Costs - (Costs/100*75) end

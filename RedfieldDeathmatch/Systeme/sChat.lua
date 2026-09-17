@@ -91,7 +91,7 @@ addEventHandler("onPlayerChat",root,function(message,messageType)
 						if(getElementData(source,"Adminlevel") >= 1)then
 							teamtag = "[BDM]"
 						end
-						local color = "ffffff"
+						local color = "#ffffff"
 						if(getElementData(source,"Lobby") == "TacticsArena")then
 							if(getElementData(source,"TacticsTeam") == 1)then
 								color = "#643232"

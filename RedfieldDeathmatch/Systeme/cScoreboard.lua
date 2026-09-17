@@ -1,6 +1,4 @@
 Scoreboard = {scoreboard = false, scroll = 0}
-ScoreboardFont = dxCreateFont("Files/Fonts/Dash-Dermo.ttf",20)
-ScoreboardFont2 = dxCreateFont("Files/Fonts/Honor.ttf",10)
 
 --// Scoreboard öffnen und schließen
 bindKey("tab","down",function()
@@ -69,10 +67,10 @@ function Scoreboard.update()
 		for id = 1,2 do
 			for _,v in pairs(getElementsByType("player"))do
 				if(getElementData(v,"Lobby") == "TacticsArena" and getElementData(v,"TacticsTeam") == tonumber(id))then
-					if(getElementData(v,"PremiumLevel") >= 1)then
-						local level = getElementData(v,"PremiumLevel")
+					if(tonumber(getElementData(v,"PremiumLevel")) >= 1)then
+						local level = tonumber(getElementData(v,"PremiumLevel"))
 						local farbcode = VIP["Farbcodes"][level]
-						nametag = "#ffffff["..farbcode.."VIP#ffffff]"
+						nametag = "#ffffff["..farbcode.."VIP#ffffff] "
 					else
 						nametag = ""
 					end
@@ -105,10 +103,10 @@ function Scoreboard.update()
 		for _,v in pairs(getElementsByType("player"))do
 			if(getElementData(v,"loggedin") == 1)then
 				if(getElementData(v,"Lobby") == "Eingangshalle" and getElementData(localPlayer,"Lobby") == "Eingangshalle" or getElementData(v,"Lobby") == getElementData(localPlayer,"Lobby") and getElementDimension(v) == getElementDimension(localPlayer) and getElementInterior(v) == getElementInterior(localPlayer))then
-					if(getElementData(v,"PremiumLevel") >= 1)then
-						local level = getElementData(v,"PremiumLevel")
+					if(tonumber(getElementData(v,"PremiumLevel")) >= 1)then
+						local level = tonumber(getElementData(v,"PremiumLevel"))
 						local farbcode = VIP["Farbcodes"][level]
-						nametag = "#ffffff["..farbcode.."VIP#ffffff]"
+						nametag = "#ffffff["..farbcode.."VIP#ffffff] "
 					else
 						nametag = ""
 					end
@@ -151,29 +149,29 @@ end
 function Scoreboard.dxDraw()
     dxDrawRectangle(613*(x/1920), 342*(y/1080), 694*(x/1920), 397*(y/1080), tocolor(0, 0, 0, 150), false)
     dxDrawRectangle(613*(x/1920), 332*(y/1080), 694*(x/1920), 10*(y/1080), tocolor(58, 98, 242, 255), false)
-    dxDrawText("Redfield Deathmatch", 613*(x/1920), 297*(y/1080), 1307*(x/1920), 342, tocolor(255, 255, 255, 255), 1*(y/1080), ScoreboardFont, "center", "center", false, false, false, false, false)
-    dxDrawText(loc("ScoreboardMessage1"), 613*(x/1920), 342*(y/1080), 766*(x/1920), 368, tocolor(255, 255, 255, 255), 1.00*(y/1080), ScoreboardFont2, "center", "center", false, false, false, false, false)
-    dxDrawText(loc("ScoreboardMessage2"), 766*(x/1920), 342*(y/1080), 872*(x/1920), 368, tocolor(255, 255, 255, 255), 1.00*(y/1080), ScoreboardFont2, "center", "center", false, false, false, false, false)
+    dxDrawText("Redfield Deathmatch", 613*(x/1920), 297*(y/1080), 1307*(x/1920), 342, tocolor(255, 255, 255, 255), 1.25*(y/1080), "default-bold", "center", "center", false, false, false, false, false)
+    dxDrawText(loc("ScoreboardMessage1"), 613*(x/1920), 342*(y/1080), 766*(x/1920), 368, tocolor(255, 255, 255, 255), 1.00*(y/1080), "default-bold", "center", "center", false, false, false, false, false)
+    dxDrawText(loc("ScoreboardMessage2"), 766*(x/1920), 342*(y/1080), 872*(x/1920), 368, tocolor(255, 255, 255, 255), 1.00*(y/1080), "default-bold", "center", "center", false, false, false, false, false)
     dxDrawLine(766*(x/1920), 342*(y/1080), 766*(x/1920), 739*(y/1080), tocolor(255, 255, 255, 255), 1, false)
     dxDrawLine(872*(x/1920), 342*(y/1080), 872*(x/1920), 739*(y/1080), tocolor(255, 255, 255, 255), 1, false)
     dxDrawLine(952*(x/1920), 342*(y/1080), 952*(x/1920), 739*(y/1080), tocolor(255, 255, 255, 255), 1, false)
-    dxDrawText(loc("ScoreboardMessage3"), 872*(x/1920), 342*(y/1080), 952*(x/1920), 368*(y/1080), tocolor(255, 255, 255, 255), 1.00*(y/1080), ScoreboardFont2, "center", "center", false, false, false, false, false)
-    dxDrawText(loc("ScoreboardMessage4"), 952*(x/1920), 342*(y/1080), 1032*(x/1920), 368*(y/1080), tocolor(255, 255, 255, 255), 1.00*(y/1080), ScoreboardFont2, "center", "center", false, false, false, false, false)
+    dxDrawText(loc("ScoreboardMessage3"), 872*(x/1920), 342*(y/1080), 952*(x/1920), 368*(y/1080), tocolor(255, 255, 255, 255), 1.00*(y/1080), "default-bold", "center", "center", false, false, false, false, false)
+    dxDrawText(loc("ScoreboardMessage4"), 952*(x/1920), 342*(y/1080), 1032*(x/1920), 368*(y/1080), tocolor(255, 255, 255, 255), 1.00*(y/1080), "default-bold", "center", "center", false, false, false, false, false)
     dxDrawLine(1032*(x/1920), 342*(y/1080), 1032*(x/1920), 739*(y/1080), tocolor(255, 255, 255, 255), 1, false)
-    dxDrawText(loc("ScoreboardMessage5"), 1032*(x/1920), 342*(y/1080), 1249*(x/1920), 368*(y/1080), tocolor(255, 255, 255, 255), 1.00*(y/1080), ScoreboardFont2, "center", "center", false, false, false, false, false)
+    dxDrawText(loc("ScoreboardMessage5"), 1032*(x/1920), 342*(y/1080), 1249*(x/1920), 368*(y/1080), tocolor(255, 255, 255, 255), 1.00*(y/1080), "default-bold", "center", "center", false, false, false, false, false)
     dxDrawLine(1249*(x/1920), 342*(y/1080), 1249*(x/1920), 739*(y/1080), tocolor(255, 255, 255, 255), 1, false)
-    dxDrawText(loc("ScoreboardMessage6"), 1249*(x/1920), 342*(y/1080), 1307*(x/1920), 368*(y/1080), tocolor(255, 255, 255, 255), 1.00*(y/1080), ScoreboardFont2, "center", "center", false, false, false, false, false)
+    dxDrawText(loc("ScoreboardMessage6"), 1249*(x/1920), 342*(y/1080), 1307*(x/1920), 368*(y/1080), tocolor(255, 255, 255, 255), 1.00*(y/1080), "default-bold", "center", "center", false, false, false, false, false)
     dxDrawLine(613*(x/1920), 368*(y/1080), 1307*(x/1920), 368*(y/1080), tocolor(255, 255, 255, 255), 1, false)
 
 	local id = 0
 	for i = 1 + Scoreboard.scroll,13 + Scoreboard.scroll do
 		if(pl[i])then
-			dxDrawText(pl[i].name, 613*(x/1920), 368*(y/1080)+(26*id), 766*(x/1920), 394*(y/1080)+(26*id), tocolor(pl[i].rgb[1],pl[i].rgb[2],pl[i].rgb[3], 255), 1.00*(y/1080), ScoreboardFont2, "center", "center", false, false, false, true, false)
-			dxDrawText(pl[i].playtime, 766*(x/1920), 368*(y/1080)+(26*id), 872*(x/1920), 394*(y/1080)+(26*id), tocolor(pl[i].rgb[1],pl[i].rgb[2],pl[i].rgb[3], 255), 1.00*(y/1080), ScoreboardFont2, "center", "center", false, false, false, false, false)
-			dxDrawText(pl[i].kills, 872*(x/1920), 368*(y/1080)+(26*id), 952*(x/1920), 394*(y/1080)+(26*id), tocolor(pl[i].rgb[1],pl[i].rgb[2],pl[i].rgb[3], 255), 1.00*(y/1080), ScoreboardFont2, "center", "center", false, false, false, false, false)
-			dxDrawText(pl[i].tode, 952*(x/1920), 368*(y/1080)+(26*id), 1032*(x/1920), 394*(y/1080)+(26*id), tocolor(pl[i].rgb[1],pl[i].rgb[2],pl[i].rgb[3], 255), 1.00*(y/1080), ScoreboardFont2, "center", "center", false, false, false, false, false)
-			dxDrawText(pl[i].status, 1032*(x/1920), 368*(y/1080)+(26*id), 1249*(x/1920), 394*(y/1080)+(26*id), tocolor(pl[i].rgb[1],pl[i].rgb[2],pl[i].rgb[3], 255), 1.00*(y/1080), ScoreboardFont2, "center", "center", false, false, false, false, false)
-			dxDrawText(pl[i].ping, 1249*(x/1920), 368*(y/1080)+(26*id), 1307*(x/1920), 394*(y/1080)+(26*id), tocolor(pl[i].rgb[1],pl[i].rgb[2],pl[i].rgb[3], 255), 1.00*(y/1080), ScoreboardFont2, "center", "center", false, false, false, false, false)
+			dxDrawText(pl[i].name, 613*(x/1920), 368*(y/1080)+(26*id), 766*(x/1920), 394*(y/1080)+(26*id), tocolor(pl[i].rgb[1],pl[i].rgb[2],pl[i].rgb[3], 255), 1.00*(y/1080), "default-bold", "center", "center", false, false, false, true, false)
+			dxDrawText(pl[i].playtime, 766*(x/1920), 368*(y/1080)+(26*id), 872*(x/1920), 394*(y/1080)+(26*id), tocolor(pl[i].rgb[1],pl[i].rgb[2],pl[i].rgb[3], 255), 1.00*(y/1080), "default-bold", "center", "center", false, false, false, false, false)
+			dxDrawText(pl[i].kills, 872*(x/1920), 368*(y/1080)+(26*id), 952*(x/1920), 394*(y/1080)+(26*id), tocolor(pl[i].rgb[1],pl[i].rgb[2],pl[i].rgb[3], 255), 1.00*(y/1080), "default-bold", "center", "center", false, false, false, false, false)
+			dxDrawText(pl[i].tode, 952*(x/1920), 368*(y/1080)+(26*id), 1032*(x/1920), 394*(y/1080)+(26*id), tocolor(pl[i].rgb[1],pl[i].rgb[2],pl[i].rgb[3], 255), 1.00*(y/1080), "default-bold", "center", "center", false, false, false, false, false)
+			dxDrawText(pl[i].status, 1032*(x/1920), 368*(y/1080)+(26*id), 1249*(x/1920), 394*(y/1080)+(26*id), tocolor(pl[i].rgb[1],pl[i].rgb[2],pl[i].rgb[3], 255), 1.00*(y/1080), "default-bold", "center", "center", false, false, false, false, false)
+			dxDrawText(pl[i].ping, 1249*(x/1920), 368*(y/1080)+(26*id), 1307*(x/1920), 394*(y/1080)+(26*id), tocolor(pl[i].rgb[1],pl[i].rgb[2],pl[i].rgb[3], 255), 1.00*(y/1080), "default-bold", "center", "center", false, false, false, false, false)
 			id = id + 1
 		end
 	end

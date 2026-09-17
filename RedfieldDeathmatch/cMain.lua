@@ -1,7 +1,6 @@
 x,y = guiGetScreenSize()
-local FONT = guiCreateFont("Files/Fonts/Honor.ttf",8.5)
 GUIEditor = { gridlist = {}, window = {}, button = {}, label = {}, radiobutton = {}, edit = {}, memo = {}, staticimage = {} }
-Serverinfos = {name = "Redfield Deathmatch", version = "v.0.9.9"}
+Serverinfos = {name = "Redfield Deathmatch", version = "v.1.0.0"}
 
 --// isCursorOnElement
 function isCursorOnElement( posX, posY, width, height )
@@ -27,14 +26,14 @@ function setWindowDatas(type)
 		if(#GUIEditor.label >= 1)then
 			for i = 1,#GUIEditor.label do
 				if(isElement(GUIEditor.label[i]))then
-					guiSetFont(GUIEditor.label[i],FONT)
+					guiSetFont(GUIEditor.label[i],"default-bold-small")
 				end
 			end
 		end
 		if(#GUIEditor.button >= 1)then
 			for i = 1,#GUIEditor.button do
 				if(isElement(GUIEditor.button[i]))then
-					guiSetFont(GUIEditor.button[i],FONT)
+					guiSetFont(GUIEditor.button[i],"default-bold-small")
 				end
 			end
 		end
@@ -49,7 +48,7 @@ addEventHandler("setWindowDatas",root,setWindowDatas)
 
 --// isWindowOpen
 function isWindowOpen()
-	if(isElement(GUIEditor.window[1]) or getElementPosition(localPlayer,"elementClicked") == true or getElementData(localPlayer,"SkinZiehung") == true)then
+	if(getElementData(localPlayer,"loggedin") ~= 1 or isElement(GUIEditor.window[1]) or getElementPosition(localPlayer,"elementClicked") == true or getElementData(localPlayer,"SkinZiehung") == true or Tutorial.active == true)then
 		return false
 	else
 		return true
@@ -122,7 +121,7 @@ end)
 
 addEventHandler("onClientPlayerDamage",root,function(attacker)
 	if(not(attacker))then
-		cancelEvent()
+		--cancelEvent()
 	end
 end)
 

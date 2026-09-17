@@ -1,5 +1,5 @@
 setFPSLimit(65)
-setGameType("Redfield Deathmatch v.0.9.9")
+setGameType("Redfield Deathmatch v.1.0.0")
 setWeather(0)
 
 function infobox(player,text,r,g,b)

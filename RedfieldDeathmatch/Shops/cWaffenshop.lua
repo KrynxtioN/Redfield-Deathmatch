@@ -8,7 +8,7 @@ bindKey("f7","down",function()
 	else
 		if(isWindowOpen())then
 			if(getElementData(localPlayer,"Lobby") == "TacticsArena")then
-				GUIEditor.window[1] = guiCreateWindow(761, 264, 574, 410, loc("Waffenshopmessage7"), false)
+				GUIEditor.window[1] = guiCreateWindow(761, 264, 574, 410, loc("WaffenshopMessage7"), false)
 
 				GUIEditor.staticimage[1] = guiCreateStaticImage(10, 28, 103, 101, "Files/Images/HUD/Waffen/18.png", false, GUIEditor.window[1])
 				GUIEditor.label[1] = guiCreateLabel(10, 139, 103, 35, loc("WaffenshopMessage8"), false, GUIEditor.window[1])

@@ -1,7 +1,7 @@
 RegisterLogin = {payday = {}}
 
 --// Datenbankverbindung herstellen
-handler = dbConnect("mysql","dbname=redfielddeathmatch;host=127.0.0.1","root","")
+handler = dbConnect("mysql","dbname=redfielddeathmatch;host=host","user","password")
 
 if(handler)then
 	outputDebugString("Es konnte eine Datenbankverbindung hergestellt werden")
@@ -49,7 +49,7 @@ addEventHandler("RegisterLogin.server",root,function(type,passwort)
 			if(#result == 0)then
 				local hashedPassword = passwordHash(passwort,"bcrypt",{})
 				if(hashedPassword)then
-					dbExec(handler,"INSERT INTO userdata (Username,Passwort,Serial) VALUES ('"..getPlayerName(client).."','"..hashedPassword.."','"..getPlayerSerial(client).."')")
+					dbExec(handler,"INSERT INTO userdata (Username,Passwort,Serial,Sprache) VALUES ('"..getPlayerName(client).."','"..hashedPassword.."','"..getPlayerSerial(client).."','"..getElementData(client,"Sprache").."')")
 					dbExec(handler,"INSERT INTO achievements (Username) VALUES ('"..getPlayerName(client).."')")
 					dbExec(handler,"UPDATE userdata SET Skins = '0|' WHERE Username = '"..getPlayerName(client).."'")
 					RegisterLogin.eingangshalle(client)
@@ -68,7 +68,7 @@ addEventHandler("RegisterLogin.server",root,function(type,passwort)
 end)
 
 --// Alles, was passieren soll, nachdem der Spieler sich eingeloggt oder registriert hat
-local Datas = {"Geld","GDMCoins","Spielstunden","KillsGesamt","TodeGesamt","KillsTacticArena","TodeTacticArena","KillsDeagleArena","TodeDeagleArena","KillsDeathmatch","TodeDeathmatch","DamageGesamt","DamageTacticArena","DamageDeagleArena","DamageDeathmatch","Adminlevel","VIPBronzeZeit","VIPSilberZeit","VIPGoldZeit","SkinID","DeagleKills","Mp5Kills","M4Kills","RifleKills","Status","KillsLastHour","YakuzaSkin","AngelsOfDeathSkin","Pokale","MVPsGesamt","MVPsTactics","Achievements","Lootbox","LootboxenOpen"}
+local Datas = {"Geld","GDMCoins","Spielstunden","KillsGesamt","TodeGesamt","KillsTacticArena","TodeTacticArena","KillsDeagleArena","TodeDeagleArena","KillsDeathmatch","TodeDeathmatch","DamageGesamt","DamageTacticArena","DamageDeagleArena","DamageDeathmatch","Adminlevel","VIPBronzeZeit","VIPSilberZeit","VIPGoldZeit","SkinID","DeagleKills","Mp5Kills","M4Kills","RifleKills","Status","KillsLastHour","YakuzaSkin","AngelsOfDeathSkin","Pokale","MVPsGesamt","MVPsTactics","Achievements","Lootbox","LootboxenOpen","Sprache"}
 
 function RegisterLogin.eingangshalle(player)
 	for _,v in pairs(Datas)do
@@ -100,7 +100,7 @@ function RegisterLogin.eingangshalle(player)
 	bindKey(player,"f2","down",DeagleArena.openEinstellungen)
 	bindKey(player,"f2","down",DeathmatchArena.openEinstellungen)
 	bindKey(player,"f5","down",Achievements.openWindow)
-	outputChatBox(loc(player,"RegisterLoginMessage17"),player,255,0,0)
+	--outputChatBox(loc(player,"RegisterLoginMessage17"),player,255,0,0)
 	Adminsystem.bindKey(player)
 	bindKey(player,"m","down",Tactics.openMaps)
 	
@@ -123,15 +123,15 @@ function RegisterLogin.eingangshalle(player)
 			end
 			setElementData(player,"KillsLastHour",0)
 		end
-		if(getElementData(player,"Spielstunden") == 600)then setPlayerAchievement(player,29)end
-		if(getElementData(player,"Spielstunden") == 1500)then setPlayerAchievement(player,30)end
-		if(getElementData(player,"Spielstunden") == 3000)then setPlayerAchievement(player,31)end
-		if(getElementData(player,"Spielstunden") == 4500)then setPlayerAchievement(player,32)end
-		if(getElementData(player,"Spielstunden") == 6000)then setPlayerAchievement(player,33)end
-		if(getElementData(player,"Spielstunden") == 15000)then setPlayerAchievement(player,34)end
-		if(getElementData(player,"Spielstunden") == 30000)then setPlayerAchievement(player,35)end
-		if(getElementData(player,"Spielstunden") == 45000)then setPlayerAchievement(player,36)end
-		if(getElementData(player,"Spielstunden") == 60000)then setPlayerAchievement(player,37)end
+		if(getElementData(player,"Spielstunden") == 180)then setPlayerAchievement(player,29)end
+		if(getElementData(player,"Spielstunden") == 300)then setPlayerAchievement(player,30)end
+		if(getElementData(player,"Spielstunden") == 600)then setPlayerAchievement(player,31)end
+		if(getElementData(player,"Spielstunden") == 1500)then setPlayerAchievement(player,32)end
+		if(getElementData(player,"Spielstunden") == 3000)then setPlayerAchievement(player,33)end
+		if(getElementData(player,"Spielstunden") == 4500)then setPlayerAchievement(player,34)end
+		if(getElementData(player,"Spielstunden") == 6000)then setPlayerAchievement(player,35)end
+		if(getElementData(player,"Spielstunden") == 7500)then setPlayerAchievement(player,36)end
+		if(getElementData(player,"Spielstunden") == 15000)then setPlayerAchievement(player,37)end
 	end,60000,0,player)
 	
 	outputDebugString("[REGISTER LOGIN] "..getPlayerName(player).." wurde in seinen Account eingeloggt")
@@ -165,5 +165,4 @@ function RegisterLogin.spawnEingangshalle(player)
 	toggleAllControls(player,true)
 	triggerClientEvent(player,"setGamespeed",player,1)
 	setPedHeadless(player,false)
-
 end

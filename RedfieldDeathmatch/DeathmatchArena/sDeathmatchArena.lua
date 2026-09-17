@@ -28,15 +28,16 @@ addEvent("DeathmatchArena.createLobby",true)
 addEventHandler("DeathmatchArena.createLobby",root,function(limit,willkommensnachricht,passwort,map,name)
 	if(DeathmatchArena.existLobby(getPlayerName(client)))then
 		local limit = tonumber(limit)
-		if(isPremium(client))then
+		if(isPremium(client) == true)then
 			premium = 1
 			if(hasSilberPremium(client))then if(limit > 8)then limit = 8 end end
 			if(hasBronzePremium(client))then if(limit > 6)then limit = 6 end end
 		else
 			premium = 0
+			if(tonumber(map) > 1)then infobox(client,loc(client,"DeathmatchArenaMessage63"),125,0,0) end
 			map = 1
+			outputChatBox(loc(client,"DeathmatchArenaMessage54"),client,0,150,0)
 			if(limit > 4)then limit = 4 end
-			willkommensnachricht = "Du möchtest eine eigene Lobby, die jederzeit verfügbar ist und erweiterte Einstellungen? Mit Premium ist dies möglich!"
 		end
 		DeathmatchArena.activeLobbys = DeathmatchArena.activeLobbys + 1
 		DeathmatchArena.lobbys[DeathmatchArena.activeLobbys] = {
@@ -86,6 +87,7 @@ addEventHandler("DeathmatchArena.settingsName",root,function(name)
 		if(isPremium(client))then
 			dbExec(handler,"UPDATE deathmatchlobbys SET Name = '"..name.."' WHERE Besitzer = '"..getPlayerName(client).."'")
 		end
+		triggerClientEvent(client,"DeathmatchArena.updateSettingsWindow",client,DeathmatchArena.lobbys[LobbyID])
 	else infobox(client,loc(client,"DeathmatchArenaMessage3"),125,0,0)end
 end)
 
@@ -109,7 +111,7 @@ addEventHandler("DeathmatchArena.settingsLimit",root,function(limit)
 					return false
 				end
 			elseif(hasGoldPremium(client))then
-				return true
+
 			else
 				if(limit > 4)then
 					infobox(client,loc(client,"DeathmatchArenaMessage27"),125,0,0)
@@ -122,6 +124,7 @@ addEventHandler("DeathmatchArena.settingsLimit",root,function(limit)
 		if(isPremium(client))then
 			dbExec(handler,"UPDATE deathmatchlobbys SET SpielerLimit = '"..limit.."' WHERE Besitzer = '"..getPlayerName(client).."'")
 		end
+		triggerClientEvent(client,"DeathmatchArena.updateSettingsWindow",client,DeathmatchArena.lobbys[LobbyID])
 	else infobox(client,loc(client,"DeathmatchArenaMessage6"),125,0,0)end
 end)
 
@@ -135,6 +138,7 @@ addEventHandler("DeathmatchArena.settingsWillkommensnachricht",root,function(wil
 			DeathmatchArena.lobbys[LobbyID]["Willkommensnachricht"] = willkommensnachricht
 			dbExec(handler,"UPDATE deathmatchlobbys SET Willkommensnachricht = '"..willkommensnachricht.."' WHERE Besitzer = '"..getPlayerName(client).."'")
 			infobox(client,loc(client,"DeathmatchArenaMessage12"),0,125,0)
+			triggerClientEvent(client,"DeathmatchArena.updateSettingsWindow",client,DeathmatchArena.lobbys[LobbyID])
 		else infobox(client,loc(client,"DeathmatchArenaMessage11"),125,0,0)end
 	else infobox(client,loc(client,"DeathmatchArenaMessage10"),125,0,0)end
 end)
@@ -151,10 +155,12 @@ addEventHandler("DeathmatchArena.settingsMap",root,function(map)
 			infobox(client,loc(client,"DeathmatchArenaMessage15"),0,125,0)
 			
 			for _,v in pairs(getElementsByType("player"))do
-				if(getElementData(v,"Lobby") == "DeathmatchArena" and getElementDimension(v) == getElementData(client,"LobbyID"))then
+				if(getElementData(v,"Lobby") == "DeathmatchArena" and getElementData(v,"LobbyID") == LobbyID)then
+					if(isTimer(DeathmatchArena.timer[v]))then killTimer(DeathmatchArena.timer[v]) end
 					DeathmatchArena.spawnPlayer(v)
 				end
 			end
+			triggerClientEvent(client,"DeathmatchArena.updateSettingsWindow",client,DeathmatchArena.lobbys[LobbyID])
 		else infobox(client,loc(client,"DeathmatchArenaMessage14"),125,0,0)end
 	else infobox(client,loc(client,"DeathmatchArenaMessage13"),125,0,0)end
 end)
@@ -170,6 +176,7 @@ addEventHandler("DeathmatchArena.settingsPasswort",root,function(passwort)
 		if(isPremium(client))then
 			dbExec(handler,"UPDATE deathmatchlobbys SET Passwort = '"..passwort.."' WHERE Besitzer = '"..getPlayerName(client).."'")
 		end
+		triggerClientEvent(client,"DeathmatchArena.updateSettingsWindow",client,DeathmatchArena.lobbys[LobbyID])
 	else infobox(client,loc(client,"DeathmatchArenaMessage16"),125,0,0)end
 end)
 
@@ -179,9 +186,10 @@ addEventHandler("DeathmatchArena.deleteLobby",root,function()
 	local LobbyID = getElementData(client,"LobbyID")
 	local besitzer = DeathmatchArena.lobbys[LobbyID]["Besitzer"]
 	if(besitzer == getPlayerName(client))then
+		local lobbyPremium = DeathmatchArena.lobbys[LobbyID]["Premium"]
 		DeathmatchArena.lobbys[LobbyID] = nil
 		infobox(client,loc(client,"DeathmatchArenaMessage19"),0,125,0)
-		if(isPremium(client))then
+		if(lobbyPremium == 1)then
 			dbExec(handler,"DELETE FROM deathmatchlobbys WHERE Besitzer = '"..getPlayerName(client).."'")
 		end
 		for _,v in pairs(getElementsByType("player"))do
@@ -277,8 +285,23 @@ function DeathmatchArena.spawnPlayer(player)
 end
 
 --// Was passiert, wenn der Spieler in einer Deathmatch Lobby stirbt
-addEventHandler("onPlayerWasted",root,function()
+addEventHandler("onPlayerWasted",root,function(ammo,attacker,weapon,bodypart)
 	if(getElementData(source,"Lobby") == "DeathmatchArena")then
+		local victimName = getPlayerName(source)
+		local killfeedText
+		local lobbyID = getElementData(source,"LobbyID")
+
+		if(isElement(attacker) and getElementType(attacker) == "player" and attacker ~= source)then
+			killfeedText = victimName.." -> "..getPlayerName(attacker).." ☠"
+		else
+			killfeedText = victimName.." ☠"
+		end
+
+		for _,v in pairs(getElementsByType("player"))do
+			if(getElementData(v,"loggedin") == 1 and getElementData(v,"Lobby") == "DeathmatchArena" and getElementData(v,"LobbyID") == lobbyID)then
+				triggerClientEvent(v,"DeathmatchArena.addKillfeed",resourceRoot,killfeedText)
+			end
+		end
 		setElementData(source,"TodeDeathmatch",getElementData(source,"TodeDeathmatch")+1)
 		setElementData(source,"TodeGesamt",getElementData(source,"TodeGesamt")+1)
 		DeathmatchArena.timer[source] = setTimer(function(source)
@@ -292,13 +315,16 @@ end)
 
 --// Was passiert, wenn der Spieler in einer Deathmatch Lobby ist und den Server verlässt
 addEventHandler("onPlayerQuit",root,function()
-	if(isTimer(DeathmatchArena[source]))then killTimer(DeathmatchArena[source])end
+	if(isTimer(DeathmatchArena.timer[source]))then killTimer(DeathmatchArena.timer[source])end
 	if(getElementData(source,"Lobby") == "DeathmatchArena")then
 		local ID = getElementData(source,"LobbyID")
-		DeathmatchArena.lobbys[ID]["SpielerInLobby"] = DeathmatchArena.lobbys[ID]["SpielerInLobby"] - 1
-		if(DeathmatchArena.lobbys[ID]["SpielerInLobby"] == 0)then
-			if(DeathmatchArena.lobbys[ID]["Premium"] == 0)then
-				DeathmatchArena.lobbys[ID] = nil
+		if(DeathmatchArena.lobbys[ID])then
+			DeathmatchArena.lobbys[ID]["SpielerInLobby"] = DeathmatchArena.lobbys[ID]["SpielerInLobby"] - 1
+			if(DeathmatchArena.lobbys[ID]["SpielerInLobby"] <= 0)then
+				DeathmatchArena.lobbys[ID]["SpielerInLobby"] = 0
+				if(DeathmatchArena.lobbys[ID]["Premium"] == 0)then
+					DeathmatchArena.lobbys[ID] = nil
+				end
 			end
 		end
 	end
@@ -307,18 +333,22 @@ end)
 --// Spieler verlässt Lobby
 addCommandHandler("leave",function(player)
 	if(getElementData(player,"loggedin") == 1 and getElementData(player,"Lobby") == "DeathmatchArena")then
-		if(isTimer(DeathmatchArena[player]))then killTimer(DeathmatchArena[player])end
+		if(isTimer(DeathmatchArena.timer[player]))then killTimer(DeathmatchArena.timer[player])end
 		local ID = getElementData(player,"LobbyID")
-		DeathmatchArena.lobbys[ID]["SpielerInLobby"] = DeathmatchArena.lobbys[ID]["SpielerInLobby"] - 1
-		if(DeathmatchArena.lobbys[ID]["SpielerInLobby"] == 0)then
-			if(DeathmatchArena.lobbys[ID]["Premium"] == 0)then
-				DeathmatchArena.lobbys[ID] = nil
+		if(DeathmatchArena.lobbys[ID])then
+			DeathmatchArena.lobbys[ID]["SpielerInLobby"] = DeathmatchArena.lobbys[ID]["SpielerInLobby"] - 1
+			if(DeathmatchArena.lobbys[ID]["SpielerInLobby"] <= 0)then
+				DeathmatchArena.lobbys[ID]["SpielerInLobby"] = 0
+				if(DeathmatchArena.lobbys[ID]["Premium"] == 0)then
+					DeathmatchArena.lobbys[ID] = nil
+				end
 			end
 		end
 		RegisterLogin.spawnEingangshalle(player)
 		RegisterLogin.savePlayerDatas(player)
 		setElementData(player,"TemporaererDamage",0)
 		setElementData(player,"TemporaererKill",0)
+		triggerClientEvent(player,"setWindowDatas",player,"reset")
 	end
 end)
 
@@ -333,6 +363,6 @@ end)
 function DeathmatchArena.openEinstellungen(player)
 	if(getElementData(player,"loggedin") == 1 and getElementData(player,"Lobby") == "DeathmatchArena")then
 		local ID = getElementData(player,"LobbyID")
-		triggerClientEvent(player,"DeathmatchArena.openEinstellungen",player,DeathmatchArena.lobbys[ID]["Besitzer"])
+		triggerClientEvent(player,"DeathmatchArena.openEinstellungen",player,DeathmatchArena.lobbys[ID]["Besitzer"],DeathmatchArena.lobbys[ID])
 	end
 end

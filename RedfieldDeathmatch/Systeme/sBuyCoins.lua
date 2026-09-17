@@ -1,9 +1,13 @@
 --// Nachricht abschicken
 addEvent("BuyCoins.server",true)
-addEventHandler("BuyCoins.server",root,function(text)
-	local result = dbPoll(dbQuery(handler,"SELECT * FROM buycoins WHERE Username = '"..getPlayerName(client).."'"),-1)
-	if(#result == 0)then
-		dbExec(handler,"INSERT INTO buycoins (Username,Text) VALUES ('"..getPlayerName(client).."','"..text.."')")
-		infobox(client,loc(client,"GDMCoinsMessage5"),0,125,0)
+addEventHandler("BuyCoins.server",root,function(coins)
+	local coins = tonumber(coins)
+	local price = coins * 5000
+	local playerMoney = tonumber(getElementData(client,"Geld"))
+	
+	if(playerMoney >= price)then
+		setElementData(client,"Geld",getElementData(client,"Geld")-price)
+		setElementData(client,"GDMCoins",getElementData(client,"GDMCoins")+coins)
+		infobox(client,loc(client,"GDMCoinsMessage5"):format(coins),0,125,0)
 	else infobox(client,loc(client,"GDMCoinsMessage4"),125,0,0)end
 end)

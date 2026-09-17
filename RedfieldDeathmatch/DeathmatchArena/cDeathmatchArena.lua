@@ -2,6 +2,15 @@ DeathmatchArena = {}
 local savedDeathmatchArenaID = nil
 local savedDeathmatchArenaBesitzer = nil
 
+--// Lobby verlassen Information
+function DeathmatchArena.renderLeaveInfo()
+	if(getElementData(localPlayer,"Lobby") == "DeathmatchArena")then
+		dxDrawText(loc("DeathmatchArenaMessage55"),1350*(x/1920),1020*(y/1080),1890*(x/1920),1060*(y/1080),tocolor(255,255,255,200),1.00*(y/1080),"default-bold","right","center",false,false,false,false,false)
+	end
+end
+addEventHandler("onClientRender",root,DeathmatchArena.renderLeaveInfo)
+
+
 --// Fenster erstellen
 addEvent("DeathmatchArena.createWindow",true)
 addEventHandler("DeathmatchArena.createWindow",root,function()
@@ -94,6 +103,8 @@ function DeathmatchArena.createLobbyWindow()
     GUIEditor.label[1] = guiCreateLabel(10, 26, 143, 28, loc("DeathmatchArenaMessage29"), false, GUIEditor.window[1])
     guiLabelSetHorizontalAlign(GUIEditor.label[1], "center", false)
     guiLabelSetVerticalAlign(GUIEditor.label[1], "center")
+    GUIEditor.label[6] = guiCreateLabel(10, 207, 489, 15, loc("DeathmatchArenaMessage62"), false, GUIEditor.window[1])
+    guiLabelSetHorizontalAlign(GUIEditor.label[6], "center", false)
     GUIEditor.label[2] = guiCreateLabel(10, 64, 143, 28, loc("DeathmatchArenaMessage30"), false, GUIEditor.window[1])
     guiLabelSetHorizontalAlign(GUIEditor.label[2], "center", false)
     guiLabelSetVerticalAlign(GUIEditor.label[2], "center")
@@ -157,10 +168,10 @@ function DeathmatchArena.createPasswordWindow()
 end
 
 --// Lobby Einstellungen
-function DeathmatchArena.openEinstellungen(besitzer)
+function DeathmatchArena.openEinstellungen(besitzer,lobby)
 	if(isWindowOpen())then
 		if(besitzer == getPlayerName(localPlayer))then
-			GUIEditor.window[1] = guiCreateWindow(565, 339, 473, 245, loc("DeathmatchArenaMessage39"), false)
+			GUIEditor.window[1] = guiCreateWindow(565, 294, 473, 335, loc("DeathmatchArenaMessage39"), false)
 
 			GUIEditor.edit[1] = guiCreateEdit(153, 62, 212, 26, "", false, GUIEditor.window[1])
 			GUIEditor.button[1] = guiCreateButton(375, 62, 88, 26, loc("DeathmatchArenaMessage40"), false, GUIEditor.window[1])
@@ -192,6 +203,23 @@ function DeathmatchArena.openEinstellungen(besitzer)
 			GUIEditor.button[5] = guiCreateButton(375, 170, 88, 26, loc("DeathmatchArenaMessage49"), false, GUIEditor.window[1])
 			GUIEditor.button[6] = guiCreateButton(10, 209, 217, 26, loc("DeathmatchArenaMessage50"), false, GUIEditor.window[1])
 			GUIEditor.button[7] = guiCreateButton(246, 209, 217, 26, loc("DeathmatchArenaMessage51"), false, GUIEditor.window[1])
+			GUIEditor.label[6] = guiCreateLabel(10, 245, 453, 20, loc("DeathmatchArenaMessage64"), false, GUIEditor.window[1])
+			GUIEditor.label[7] = guiCreateLabel(10, 265, 453, 20, loc("DeathmatchArenaMessage65"), false, GUIEditor.window[1])
+			guiLabelSetHorizontalAlign(GUIEditor.label[6], "center", false)
+			guiLabelSetHorizontalAlign(GUIEditor.label[7], "center", false)
+			GUIEditor.label[10] = guiCreateLabel(10, 290, 453, 20, loc("DeathmatchArenaMessage62"), false, GUIEditor.window[1])
+			guiLabelSetHorizontalAlign(GUIEditor.label[10], "center", false)
+			guiSetFont(GUIEditor.label[10],"default-bold-small")
+			if(lobby)then
+				guiSetText(GUIEditor.edit[1],lobby["Willkommensnachricht"] or "")
+				guiSetText(GUIEditor.edit[2],tostring(lobby["Limit"] or ""))
+				guiSetText(GUIEditor.edit[3],lobby["Passwort"] or "")
+				guiSetText(GUIEditor.edit[4],lobby["Name"] or "")
+				guiRadioButtonSetSelected(GUIEditor.radiobutton[1],tonumber(lobby["Map"]) == 1)
+				guiRadioButtonSetSelected(GUIEditor.radiobutton[2],tonumber(lobby["Map"]) == 2)
+				guiRadioButtonSetSelected(GUIEditor.radiobutton[3],tonumber(lobby["Map"]) == 3)
+				DeathmatchArena.updateSettingsWindow(lobby)
+			end
 			setWindowDatas("set")
 			
 			addEventHandler("onClientGUIClick",GUIEditor.button[2],function()
@@ -235,5 +263,41 @@ function DeathmatchArena.openEinstellungen(besitzer)
 		end
 	end
 end
+function DeathmatchArena.updateSettingsWindow(lobby)
+	if(not lobby or not isElement(GUIEditor.window[1]))then return end
+
+
+
+	if(isElement(GUIEditor.edit[1]))then guiSetText(GUIEditor.edit[1],lobby["Willkommensnachricht"] or "") end
+	if(isElement(GUIEditor.edit[2]))then guiSetText(GUIEditor.edit[2],tostring(lobby["Limit"] or "")) end
+	if(isElement(GUIEditor.edit[3]))then guiSetText(GUIEditor.edit[3],lobby["Passwort"] or "") end
+	if(isElement(GUIEditor.edit[4]))then guiSetText(GUIEditor.edit[4],lobby["Name"] or "") end
+end
+addEvent("DeathmatchArena.updateSettingsWindow",true)
+addEventHandler("DeathmatchArena.updateSettingsWindow",root,DeathmatchArena.updateSettingsWindow)
+
 addEvent("DeathmatchArena.openEinstellungen",true)
 addEventHandler("DeathmatchArena.openEinstellungen",root,DeathmatchArena.openEinstellungen)
+
+--// Killfeed
+DeathmatchArena.killfeed = {}
+
+addEvent("DeathmatchArena.addKillfeed",true)
+addEventHandler("DeathmatchArena.addKillfeed",root,function(text)
+	table.insert(DeathmatchArena.killfeed,1,{text = text,tick = getTickCount()})
+	if(#DeathmatchArena.killfeed > 5)then table.remove(DeathmatchArena.killfeed)end
+end)
+
+function DeathmatchArena.renderKillfeed()
+	if(getElementData(localPlayer,"Lobby") ~= "DeathmatchArena")then return end
+
+	local now = getTickCount()
+	for i=#DeathmatchArena.killfeed,1,-1 do
+		if(now-DeathmatchArena.killfeed[i].tick >= 6000)then table.remove(DeathmatchArena.killfeed,i)end
+	end
+
+	for i,v in ipairs(DeathmatchArena.killfeed)do
+		dxDrawText(v.text,1400*(x/1920),(450+(i-1)*38)*(y/1080),1870*(x/1920),(482+(i-1)*38)*(y/1080),tocolor(255,255,255,255),1.00*(y/1080),"default-bold","right","center",false,false,false,true,false)
+	end
+end
+addEventHandler("onClientRender",root,DeathmatchArena.renderKillfeed)

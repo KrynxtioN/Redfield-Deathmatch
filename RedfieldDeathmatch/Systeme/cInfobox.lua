@@ -1,5 +1,13 @@
 function infobox(text,r,g,b)
-	if(r == 120 and g == 0 and b == 0)then playSoundFrontEnd(13) else playSoundFrontEnd(11)end
+	local r,g,b = r,g,b
+	if(r == 125 and g == 0 and b == 0)then
+		playSoundFrontEnd(13)
+		r,g,b = 255,0,0
+	else
+		playSoundFrontEnd(11)
+		r,g,b = 0,255,0
+	end
+	
 	infoboxText = text
 	infoboxR,infoboxG,infoboxB = r,g,b
 	if(isTimer(infoboxTimer))then

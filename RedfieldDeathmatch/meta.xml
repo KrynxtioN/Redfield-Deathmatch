@@ -366,11 +366,7 @@
 	<file src = "Files/Sounds/Hitsound.mp3"/>
 	<file src = "Files/Sounds/letsgo.wav"/>
 	
-	<file src = "Files/Fonts/Dash-Dermo.ttf"/>
-	<file src = "Files/Fonts/Honor.ttf"/>
-	<file src = "Files/Fonts/TrueLies.ttf"/>
-	
-	<map src = "Maps/Pennerspawn.map"/>
+	<map src = "Maps/Spawn.map"/>
 
 	<script src = "Language/cLanguage.lua" type = "client" cache = "false"/>
 	<script src = "Language/sLanguage.lua"/>
@@ -383,6 +379,7 @@
 	
 	<script src = "RegisterLogin/cRegisterLogin.lua" type = "client" cache = "false"/>
 	<script src = "RegisterLogin/sRegisterLogin.lua"/>
+	<script src = "RegisterLogin/Tutorial.lua" type = "client" cache = "false"/>
 	
 	<script src = "DeagleArena/cDeagleArena.lua" type = "client" cache = "false"/>
 	<script src = "DeagleArena/sDeagleArena.lua"/>

@@ -143,6 +143,56 @@ function Tactics.sortPlayer()
 	end
 end
 
+--// Runden-MVP (ab mindestens 4 Spielern / 2vs2)
+Tactics.mvpRoundFinished = false
+
+function Tactics.getLobbyPlayers()
+	local players = {}
+	for _,v in pairs(getElementsByType("player"))do
+		if(getElementData(v,"loggedin") == 1 and getElementData(v,"Lobby") == "TacticsArena")then
+			table.insert(players,v)
+		end
+	end
+	return players
+end
+
+function Tactics.finishRoundMVP()
+	if(Tactics.mvpRoundFinished == true)then return end
+	Tactics.mvpRoundFinished = true
+	Tactics.roundAktiv = false
+
+	local players = Tactics.getLobbyPlayers()
+	if(#players < 4)then return end
+
+	setTimer(function()
+		local roundPlayers = Tactics.getLobbyPlayers()
+		if(#roundPlayers < 4)then return end
+
+		local bestDamage,bestKills = -1,-1
+		local mvps = {}
+		for _,player in ipairs(roundPlayers)do
+			local damage = tonumber(getElementData(player,"TemporaererDamage")) or 0
+			local kills = tonumber(getElementData(player,"TemporaererKill")) or 0
+			if(damage > bestDamage or (damage == bestDamage and kills > bestKills))then
+				bestDamage,bestKills = damage,kills
+				mvps = {player}
+			elseif(damage == bestDamage and kills == bestKills)then
+				table.insert(mvps,player)
+			end
+		end
+
+		local names = {}
+		for _,player in ipairs(mvps)do
+			setElementData(player,"MVPsGesamt",(tonumber(getElementData(player,"MVPsGesamt")) or 0)+1)
+			setElementData(player,"MVPsTactics",(tonumber(getElementData(player,"MVPsTactics")) or 0)+1)
+			table.insert(names,getPlayerName(player))
+		end
+		for _,player in ipairs(roundPlayers)do
+			triggerClientEvent(player,"Tactics.showMVP",resourceRoot,names,bestDamage,bestKills)
+		end
+	end,100,1)
+end
+
 --// Map laden
 function Tactics.loadNewMap()
 	Tactics.zeitCounter = 300
@@ -166,8 +216,10 @@ function Tactics.loadNewMap()
 	end
 
 	if(isTimer(Tactics.zeitAusgelaufen))then killTimer(Tactics.zeitAusgelaufen)end
-	if(isElement(Tactics.radarzone))then destroyElement(Tactics.radarzone)end
 	if(isElement(Tactics.radarColshape))then destroyElement(Tactics.radarColshape)end
+	for _,v in pairs(getElementsByType("player"))do
+		triggerClientEvent(v,"Tactics.destroyMatrixBoundary",v)
+	end
 	if(isTimer(Tactics.startMapTimer))then killTimer(Tactics.startMapTimer)end
 	if(isTimer(Tactics.countdownTimer))then killTimer(Tactics.countdownTimer)end
 	if(isTimer(Tactics.loadNextMap))then killTimer(Tactics.loadNextMap)end
@@ -194,10 +246,13 @@ function Tactics.loadNewMap()
 		local rx1,ry1 = tonumber(tbl[1]),tonumber(tbl[2])
 		local rx2,ry2 = tonumber(tbl[3]),tonumber(tbl[4])
 		local rxs,rys = math.abs(rx1-rx2),math.abs(ry1-ry2)
-		Tactics.radarzone = createRadarArea(rx1,ry1,rxs,rys,255,0,0,130,root)
 		Tactics.radarColshape = createColCuboid(rx1,ry1,-50,rxs,rys,7500)
-		setElementDimension(Tactics.radarzone,65535)
 		setElementDimension(Tactics.radarColshape,65535)
+		for _,v in pairs(getElementsByType("player"))do
+			if(getElementData(v,"loggedin") == 1 and getElementData(v,"Lobby") == "TacticsArena")then
+				triggerClientEvent(v,"Tactics.createMatrixBoundary",v,rx1,ry1,rx2,ry2)
+			end
+		end
 	
 		addEventHandler("onColShapeHit",Tactics.radarColshape,function(player)
 			if(getElementDimension(player) == getElementDimension(source))then
@@ -234,6 +289,7 @@ function Tactics.loadNewMap()
 				end
 			end
 			if(counter == 0)then
+				Tactics.mvpRoundFinished = false
 				Tactics.roundAktiv = true
 				for _,v in pairs(getElementsByType("player"))do
 					if(getElementData(v,"loggedin") == 1 and getElementData(v,"Lobby") == "TacticsArena")then
@@ -242,16 +298,16 @@ function Tactics.loadNewMap()
 						toggleAllControls(v,true)
 					end
 				end
-				setRadarAreaFlashing(Tactics.radarzone,true)
 				Tactics.zeitAusgelaufen = setTimer(function()
 					Tactics.zeitCounter = Tactics.zeitCounter - 1
 					for _,v in pairs(getElementsByType("player"))do
 						setElementData(v,"Tactics.zeitCounter",Tactics.zeitCounter)
 					end
 					if(Tactics.zeitCounter == 0)then
+						Tactics.finishRoundMVP()
 						for _,v in pairs(getElementsByType("player"))do
 							if(getElementData(v,"loggedin") == 1 and getElementData(v,"Lobby") == "TacticsArena")then
-								infobox(v,"Zeit ausgelaufen, niemand hat gewonnen. Die nächste Runde startet in wenigen Sekunden.",0,125,0)
+								infobox(v,loc(v,"TacticArenaMessage14"),0,125,0)
 								triggerClientEvent(v,"setGamespeed",v,0.4)
 							end
 						end
@@ -273,7 +329,7 @@ addEventHandler("Tactics.setNextMap",root,function(map)
 	if(hasSilberPremium(client) or hasGoldPremium(client))then
 		if(result == 0 or time.timestamp > result)then
 			if(Tactics.nextMap == nil)then
-				local NextMapTimerTime
+				local nextMapTimerTime
 				if(hasSilberPremium(client))then nextMapTimerTime = time.timestamp + 3600 end
 				if(hasGoldPremium(client))then nextMapTimerTime = time.timestamp + 1800 end
 				dbExec(handler,"UPDATE userdata SET NextMapTimer = '0' WHERE Username = '"..getPlayerName(client).."'")
@@ -290,7 +346,7 @@ addEventHandler("Tactics.setNextMap",root,function(map)
 end)
 
 function Tactics.openMaps(player)
-	if(getElementData(player,"loggedin") == 1 and getElementData(player,"Lobby") == "TacticsArena" and hasSilberPremium(player) or hasGoldPremium(player))then
+	if(getElementData(player,"loggedin") == 1 and getElementData(player,"Lobby") == "TacticsArena" and (hasSilberPremium(player) or hasGoldPremium(player)))then
 		triggerClientEvent(player,"Tactics.nextMap",player)
 	end
 end
@@ -326,41 +382,42 @@ end
 function setSpectator(player,id)
 	setElementData(player,"SpectatormodeAktiv",true)
 	local team = getElementData(player,"TacticsTeam")
-	local target
-	if(team == 1)then
-		if(Tactics.angelsofdeathPlayers[id])then
-			target = getPlayerFromName(Tactics.angelsofdeathPlayers[id])
-		end
-	elseif(team == 2)then
-		if(Tactics.yakuzaPlayers[id])then
-			target = getPlayerFromName(Tactics.yakuzaPlayers[id])
-		end
+	local players = team == 1 and Tactics.angelsofdeathPlayers or Tactics.yakuzaPlayers
+	local count = #players
+
+	if(count == 0)then
+		return
 	end
-	if(target)then
-		if(getPlayerName(target) == getPlayerName(player) or isPedDead(target))then
-			Tactics.switchTarget(player)
-		else
+
+	for i = 0,count-1 do
+		local targetID = ((id-1+i)%count)+1
+		local target = getPlayerFromName(players[targetID])
+
+		if(target and target ~= player and not isPedDead(target) and getElementData(target,"SpectatormodeAktiv") ~= true)then
+			Tactics.specID[player] = targetID
 			setCameraTarget(player,target)
 			setElementDimension(player,getElementDimension(target))
 			setElementInterior(player,getElementInterior(target))
 			setElementData(player,"TacticsSpectator",getPlayerName(target))
+			return
 		end
 	end
 end
 
 function Tactics.switchTarget(player)
 	if(getElementData(player,"loggedin") == 1 and getElementData(player,"Lobby") == "TacticsArena")then
-		Tactics.specID[player] = Tactics.specID[player] + 1
 		local team = getElementData(player,"TacticsTeam")
-		if(team == 1)then
-			if(Tactics.specID[player] > #Tactics.angelsofdeathPlayers)then
-				Tactics.specID[player] = 1
-			end
-		elseif(team == 2)then
-			if(Tactics.specID[player] > #Tactics.yakuzaPlayers)then
-				Tactics.specID[player] = 1
-			end
+		local players = team == 1 and Tactics.angelsofdeathPlayers or Tactics.yakuzaPlayers
+
+		if(#players == 0)then
+			return
 		end
+
+		Tactics.specID[player] = (Tactics.specID[player] or 0)+1
+		if(Tactics.specID[player] > #players)then
+			Tactics.specID[player] = 1
+		end
+
 		setSpectator(player,Tactics.specID[player])
 	end
 end
@@ -369,6 +426,13 @@ end
 addCommandHandler("leave",function(player)
 	if(getElementData(player,"loggedin") == 1)then
 		if(getElementData(player,"Lobby") == "TacticsArena")then
+			-- Mapgrenzen-Killtimer sofort abbrechen, damit /leave den Spieler später nicht mehr tötet.
+			if(isTimer(Tactics.kill[player]))then
+				killTimer(Tactics.kill[player])
+			end
+			Tactics.kill[player] = nil
+			triggerClientEvent(player,"Tactics.destroyRedBildschirm",player)
+
 			local team = getElementData(player,"TacticsTeam")
 			if(team == 1)then
 				Tactics.angelsofdeath = Tactics.angelsofdeath - 1
@@ -395,6 +459,7 @@ addCommandHandler("leave",function(player)
 			unbindKey(player,"arrow_r","down",Tactics.switchTarget)
 			RegisterLogin.spawnEingangshalle(player)
 			if(Tactics.getAlivedPlayers(1) == 0 or Tactics.getAlivedPlayers(2) == 0)then
+				Tactics.finishRoundMVP()
 				if(isTimer(Tactics.zeitAusgelaufen))then killTimer(Tactics.zeitAusgelaufen)end
 				if(isTimer(Tactics.startMapTimer))then killTimer(Tactics.startMapTimer)end
 				if(isTimer(Tactics.countdownTimer))then killTimer(Tactics.countdownTimer)end
@@ -404,11 +469,11 @@ addCommandHandler("leave",function(player)
 					triggerClientEvent(v,"Tactics.countdownDestroy",v,"nosound")
 					if(getElementData(v,"loggedin") == 1 and getElementData(v,"Lobby") == "TacticsArena")then
 						if(Tactics.getAlivedPlayers(1) == 0 and Tactics.getAlivedPlayers(2) >= 1)then
-							infobox(v,"Die Yakuza haben die Runde gewonnen, die Nächste startet in wenigen Sekunden.",0,125,0)
+							infobox(v,loc(v,"TacticArenaMessage15"),0,125,0)
 						elseif(Tactics.getAlivedPlayers(2) == 0 and Tactics.getAlivedPlayers(1) >= 1)then
-							infobox(v,"Die Angels of Death haben die Runde gewonnen, die Nächste startet in wenigen Sekunden.",0,125,0)
+							infobox(v,loc(v,"TacticArenaMessage16"),0,125,0)
 						elseif(Tactics.getAlivedPlayers(1) == 0 and Tactics.getAlivedPlayers(2) == 0)then
-							infobox(v,"Unentschieden, beide Teams wurden komplett eliminiert. Die nächste Runde startet in wenigen Sekunden.",0,125,0)
+							infobox(v,loc(v,"TacticArenaMessage17"),0,125,0)
 						end
 						triggerClientEvent(v,"setGamespeed",v,0.4)
 					end
@@ -433,7 +498,7 @@ addEventHandler("onPlayerQuit",root,function()
 			Tactics.angelsofdeath = Tactics.angelsofdeath - 1
 			if(Tactics.angelsofdeath < 0)then Tactics.angelsofdeath = 0 end
 			local tbl = {}
-			for _,v in pairs(Tactics.yakuzaPlayers)do
+			for _,v in pairs(Tactics.angelsofdeathPlayers)do
 				if(v ~= getPlayerName(source))then
 					table.insert(tbl,v)
 				end
@@ -458,6 +523,7 @@ addEventHandler("onPlayerQuit",root,function()
 			end
 		end
 		if(Tactics.getAlivedPlayers(1) == 0 or Tactics.getAlivedPlayers(2) == 0)then
+			Tactics.finishRoundMVP()
 			if(isTimer(Tactics.zeitAusgelaufen))then killTimer(Tactics.zeitAusgelaufen)end
 			if(isTimer(Tactics.startMapTimer))then killTimer(Tactics.startMapTimer)end
 			if(isTimer(Tactics.countdownTimer))then killTimer(Tactics.countdownTimer)end
@@ -465,11 +531,11 @@ addEventHandler("onPlayerQuit",root,function()
 			for _,v in pairs(getElementsByType("player"))do
 				if(getElementData(v,"loggedin") == 1 and getElementData(v,"Lobby") == "TacticsArena")then
 					if(Tactics.getAlivedPlayers(1) == 0 and Tactics.getAlivedPlayers(2) >= 1)then
-						infobox(v,"Die Yakuza haben die Runde gewonnen, die Nächste startet in wenigen Sekunden.",0,125,0)
+						infobox(v,loc(v,"TacticArenaMessage15"),0,125,0)
 					elseif(Tactics.getAlivedPlayers(2) == 0 and Tactics.getAlivedPlayers(1) >= 1)then
-						infobox(v,"Die Angels of Death haben die Runde gewonnen, die Nächste startet in wenigen Sekunden.",0,125,0)
+						infobox(v,loc(v,"TacticArenaMessage16"),0,125,0)
 					elseif(Tactics.getAlivedPlayers(1) == 0 and Tactics.getAlivedPlayers(2) == 0)then
-						infobox(v,"Unentschieden, beide Teams wurden komplett eliminiert. Die nächste Runde startet in wenigen Sekunden.",0,125,0)
+						infobox(v,loc(v,"TacticArenaMessage17"),0,125,0)
 					end
 					triggerClientEvent(v,"setGamespeed",v,0.4)
 					triggerClientEvent(v,"Tactics.destroyRedBildschirm",v)
@@ -499,10 +565,25 @@ end
 --// Wenn ein Team stirbt
 addEventHandler("onPlayerWasted",root,function(ammo,attacker,weapon,bodypart)
 	if(getElementData(source,"Lobby") == "TacticsArena")then
+		local victimName = getPlayerName(source)
+		local killfeedText
+
+		if(isElement(attacker) and getElementType(attacker) == "player" and attacker ~= source)then
+			killfeedText = victimName.." -> "..getPlayerName(attacker).." ☠"
+		else
+			killfeedText = victimName.." ☠"
+		end
+
+		for _,v in pairs(getElementsByType("player"))do
+			if(getElementData(v,"loggedin") == 1 and getElementData(v,"Lobby") == "TacticsArena")then
+				triggerClientEvent(v,"Tactics.addKillfeed",resourceRoot,killfeedText)
+			end
+		end
 		setElementData(source,"TodeTacticArena",getElementData(source,"TodeTacticArena")+1)
 		setElementData(source,"TodeGesamt",getElementData(source,"TodeGesamt")+1)
 		checkTodeAchievement(source)
 		if(Tactics.getAlivedPlayers(1) == 0 or Tactics.getAlivedPlayers(2) == 0)then
+			Tactics.finishRoundMVP()
 			if(isTimer(Tactics.zeitAusgelaufen))then killTimer(Tactics.zeitAusgelaufen)end
 			if(isTimer(Tactics.startMapTimer))then killTimer(Tactics.startMapTimer)end
 			if(isTimer(Tactics.countdownTimer))then killTimer(Tactics.countdownTimer)end
@@ -510,11 +591,11 @@ addEventHandler("onPlayerWasted",root,function(ammo,attacker,weapon,bodypart)
 			for _,v in pairs(getElementsByType("player"))do
 				if(getElementData(v,"loggedin") == 1 and getElementData(v,"Lobby") == "TacticsArena")then
 					if(Tactics.getAlivedPlayers(1) == 0 and Tactics.getAlivedPlayers(2) >= 1)then
-						infobox(v,"Die Yakuza haben die Runde gewonnen, die Nächste startet in wenigen Sekunden.",0,125,0)
+						infobox(v,loc(v,"TacticArenaMessage15"),0,125,0)
 					elseif(Tactics.getAlivedPlayers(2) == 0 and Tactics.getAlivedPlayers(1) >= 1)then
-						infobox(v,"Die Angels of Death haben die Runde gewonnen, die Nächste startet in wenigen Sekunden.",0,125,0)
+						infobox(v,loc(v,"TacticArenaMessage16"),0,125,0)
 					elseif(Tactics.getAlivedPlayers(1) == 0 and Tactics.getAlivedPlayers(2) == 0)then
-						infobox(v,"Unentschieden, beide Teams wurden komplett eliminiert. Die nächste Runde startet in wenigen Sekunden.",0,125,0)
+						infobox(v,loc(v,"TacticArenaMessage17"),0,125,0)
 					end
 					triggerClientEvent(v,"setGamespeed",v,0.4)
 					triggerClientEvent(v,"Tactics.destroyRedBildschirm",v)

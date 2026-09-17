@@ -2,6 +2,37 @@ DeagleArena = {}
 local savedDeagleArenaID = nil
 local savedDeagleArenaBesitzer = nil
 
+--// Lobby verlassen Information
+function DeagleArena.renderLeaveInfo()
+	if(getElementData(localPlayer,"Lobby") == "DeagleArena")then
+		dxDrawText(loc("DeagleArenaMessage54"),1350*(x/1920),1020*(y/1080),1890*(x/1920),1060*(y/1080),tocolor(255,255,255,200),1.00*(y/1080),"default-bold","right","center",false,false,false,false,false)
+	end
+end
+addEventHandler("onClientRender",root,DeagleArena.renderLeaveInfo)
+
+--// Killfeed
+DeagleArena.killfeed = {}
+
+addEvent("DeagleArena.addKillfeed",true)
+addEventHandler("DeagleArena.addKillfeed",root,function(text)
+	table.insert(DeagleArena.killfeed,1,{text = text,tick = getTickCount()})
+	if(#DeagleArena.killfeed > 5)then table.remove(DeagleArena.killfeed)end
+end)
+
+function DeagleArena.renderKillfeed()
+	if(getElementData(localPlayer,"Lobby") ~= "DeagleArena")then return end
+
+	local now = getTickCount()
+	for i=#DeagleArena.killfeed,1,-1 do
+		if(now-DeagleArena.killfeed[i].tick >= 6000)then table.remove(DeagleArena.killfeed,i)end
+	end
+
+	for i,v in ipairs(DeagleArena.killfeed)do
+		dxDrawText(v.text,1400*(x/1920),(450+(i-1)*38)*(y/1080),1870*(x/1920),(482+(i-1)*38)*(y/1080),tocolor(255,255,255,255),1.00*(y/1080),"default-bold","right","center",false,false,false,true,false)
+	end
+end
+addEventHandler("onClientRender",root,DeagleArena.renderKillfeed)
+
 --// Fenster erstellen
 addEvent("DeagleArena.createWindow",true)
 addEventHandler("DeagleArena.createWindow",root,function()
@@ -94,6 +125,8 @@ function DeagleArena.createLobbyWindow()
     GUIEditor.label[1] = guiCreateLabel(10, 26, 143, 28, loc("DeagleArenaMessage29"), false, GUIEditor.window[1])
     guiLabelSetHorizontalAlign(GUIEditor.label[1], "center", false)
     guiLabelSetVerticalAlign(GUIEditor.label[1], "center")
+    GUIEditor.label[6] = guiCreateLabel(10, 207, 489, 15, loc("DeagleArenaMessage61"), false, GUIEditor.window[1])
+    guiLabelSetHorizontalAlign(GUIEditor.label[6], "center", false)
     GUIEditor.label[2] = guiCreateLabel(10, 64, 143, 28, loc("DeagleArenaMessage30"), false, GUIEditor.window[1])
     guiLabelSetHorizontalAlign(GUIEditor.label[2], "center", false)
     guiLabelSetVerticalAlign(GUIEditor.label[2], "center")
@@ -157,10 +190,10 @@ function DeagleArena.createPasswordWindow()
 end
 
 --// Lobby Einstellungen
-function DeagleArena.openEinstellungen(besitzer)
+function DeagleArena.openEinstellungen(besitzer,lobby)
 	if(isWindowOpen())then
 		if(besitzer == getPlayerName(localPlayer))then
-			GUIEditor.window[1] = guiCreateWindow(565, 339, 473, 245, loc("DeagleArenaMessage39"), false)
+			GUIEditor.window[1] = guiCreateWindow(565, 294, 473, 335, loc("DeagleArenaMessage39"), false)
 
 			GUIEditor.edit[1] = guiCreateEdit(153, 62, 212, 26, "", false, GUIEditor.window[1])
 			GUIEditor.button[1] = guiCreateButton(375, 62, 88, 26, loc("DeagleArenaMessage40"), false, GUIEditor.window[1])
@@ -192,6 +225,21 @@ function DeagleArena.openEinstellungen(besitzer)
 			GUIEditor.button[5] = guiCreateButton(375, 170, 88, 26, loc("DeagleArenaMessage49"), false, GUIEditor.window[1])
 			GUIEditor.button[6] = guiCreateButton(10, 209, 217, 26, loc("DeagleArenaMessage50"), false, GUIEditor.window[1])
 			GUIEditor.button[7] = guiCreateButton(246, 209, 217, 26, loc("DeagleArenaMessage51"), false, GUIEditor.window[1])
+			GUIEditor.label[6] = guiCreateLabel(10, 245, 453, 20, loc("DeagleArenaMessage64"), false, GUIEditor.window[1])
+			GUIEditor.label[7] = guiCreateLabel(10, 265, 453, 20, loc("DeagleArenaMessage65"), false, GUIEditor.window[1])
+			GUIEditor.label[8] = guiCreateLabel(10, 290, 453, 20, loc("DeagleArenaMessage61"), false, GUIEditor.window[1])
+			guiLabelSetHorizontalAlign(GUIEditor.label[6], "center", false)
+			guiLabelSetHorizontalAlign(GUIEditor.label[7], "center", false)
+			guiLabelSetHorizontalAlign(GUIEditor.label[8], "center", false)
+			if(lobby)then
+				guiSetText(GUIEditor.edit[1],lobby["Willkommensnachricht"] or "")
+				guiSetText(GUIEditor.edit[2],tostring(lobby["Limit"] or ""))
+				guiSetText(GUIEditor.edit[3],lobby["Passwort"] or "")
+				guiSetText(GUIEditor.edit[4],lobby["Name"] or "")
+				guiRadioButtonSetSelected(GUIEditor.radiobutton[1],tonumber(lobby["Map"]) == 1)
+				guiRadioButtonSetSelected(GUIEditor.radiobutton[2],tonumber(lobby["Map"]) == 2)
+				guiRadioButtonSetSelected(GUIEditor.radiobutton[3],tonumber(lobby["Map"]) == 3)
+			end
 			setWindowDatas("set")
 			
 			addEventHandler("onClientGUIClick",GUIEditor.button[2],function()
@@ -235,5 +283,18 @@ function DeagleArena.openEinstellungen(besitzer)
 		end
 	end
 end
+function DeagleArena.updateSettingsWindow(lobby)
+	if(not lobby or not isElement(GUIEditor.window[1]))then return end
+	if(isElement(GUIEditor.edit[1]))then guiSetText(GUIEditor.edit[1],lobby["Willkommensnachricht"] or "") end
+	if(isElement(GUIEditor.edit[2]))then guiSetText(GUIEditor.edit[2],tostring(lobby["Limit"] or "")) end
+	if(isElement(GUIEditor.edit[3]))then guiSetText(GUIEditor.edit[3],lobby["Passwort"] or "") end
+	if(isElement(GUIEditor.edit[4]))then guiSetText(GUIEditor.edit[4],lobby["Name"] or "") end
+	if(isElement(GUIEditor.radiobutton[1]))then guiRadioButtonSetSelected(GUIEditor.radiobutton[1],tonumber(lobby["Map"]) == 1) end
+	if(isElement(GUIEditor.radiobutton[2]))then guiRadioButtonSetSelected(GUIEditor.radiobutton[2],tonumber(lobby["Map"]) == 2) end
+	if(isElement(GUIEditor.radiobutton[3]))then guiRadioButtonSetSelected(GUIEditor.radiobutton[3],tonumber(lobby["Map"]) == 3) end
+end
+addEvent("DeagleArena.updateSettingsWindow",true)
+addEventHandler("DeagleArena.updateSettingsWindow",root,DeagleArena.updateSettingsWindow)
+
 addEvent("DeagleArena.openEinstellungen",true)
 addEventHandler("DeagleArena.openEinstellungen",root,DeagleArena.openEinstellungen)
