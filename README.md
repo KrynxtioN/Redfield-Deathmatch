@@ -1,4 +1,6 @@
-# 🎮 Redfield Deathmatch
+<p align="center">
+  <img src="RDM_BANNER.png">
+</p>
 
 **Redfield Deathmatch** is a deathmatch gamemode for **Multi Theft Auto: San Andreas (MTA:SA)**, developed in Lua.
 
