@@ -102,10 +102,7 @@ addEventHandler("onClientRender", root, function()
 			local sx,sy = getScreenFromWorldPosition(vipX,vipY,vipZ+1.0)
 
 			if(sx and sy)then
-				-- Schatten
 				dxDrawText(loc("VIPMessage25"),sx+1,sy+1,sx+1,sy+1,tocolor(0,0,0,255),1.15,"default-bold","center","center")
-
-				-- Text
 				dxDrawText(loc("VIPMessage25"),sx,sy,sx,sy,tocolor(232,185,35,255),1.15,"default-bold","center","center")
 			end
 		end
