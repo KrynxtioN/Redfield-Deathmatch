@@ -113,7 +113,3 @@ The gamemode supports:
 2. Create/import the required database tables.
 3. Configure the database connection for your environment (RegisterLogin/sRegisterLogin.lua).
 5. Start the resource on your MTA server.
-
----
-
-**Redfield Deathmatch** combines classic MTA:SA deathmatch gameplay with custom arenas, player-created lobbies, persistent progression and a variety of additional systems to provide a complete PvP gamemode.
