@@ -426,7 +426,6 @@ end
 addCommandHandler("leave",function(player)
 	if(getElementData(player,"loggedin") == 1)then
 		if(getElementData(player,"Lobby") == "TacticsArena")then
-			-- Mapgrenzen-Killtimer sofort abbrechen, damit /leave den Spieler später nicht mehr tötet.
 			if(isTimer(Tactics.kill[player]))then
 				killTimer(Tactics.kill[player])
 			end
