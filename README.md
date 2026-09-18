@@ -118,6 +118,9 @@ The gamemode supports:
 
 ## 🎬 Media
 
+* https://youtu.be/w5DOkOPpvhg   
+* https://youtu.be/1HbyP3JzqlQ
+
 <p align="center">
   <img src="Screenshots/1.png" width="350">
   <img src="Screenshots/2.png" width="350">
