@@ -102,13 +102,6 @@ Redfield Deathmatch includes several additional systems beyond the main PvP mode
 - Custom damage and hit handling
 - German and English language support
 
-## 🌍 Languages
-
-The gamemode supports:
-
-- 🇩🇪 German
-- 🇬🇧 English
-
 ## ⚙️ Installation
 
 1. Place `RedfieldDeathmatch` inside your MTA server's `resources` directory.
