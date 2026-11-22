@@ -1,147 +1,231 @@
-Redfield Deathmatch is a deathmatch gamemode for Multi Theft Auto: San Andreas (MTA:SA).
+# Redfield Deathmatch
 
-The gamemode combines multiple PvP modes with custom lobbies, persistent player progression, statistics, achievements, lootboxes, VIP features, an economy system and various additional gameplay systems.
+**A feature-rich multiplayer deathmatch gamemode for Multi Theft Auto: San Andreas (MTA:SA).**
 
-## ⚔️ Tactics Arena
+Redfield Deathmatch is a PvP-focused gamemode for **Multi Theft Auto: San Andreas**, featuring multiple competitive arenas, customizable player lobbies and persistent character progression.
 
-Tactics Arena is a team-based PvP mode where **Angels of Death** and **Yakuza** fight against each other across multiple maps.
+The gamemode combines team-based combat, Free-for-All battles, an in-game economy, achievements, unlockable skins, lootboxes and VIP features into a competitive multiplayer experience.
 
-The gamemode automatically handles team distribution, rounds and map rotation. Kills, deaths and damage are tracked individually and players are rewarded based on their performance.
+---
 
-The mode also includes a spectator system and MVP tracking. Depending on their VIP level, players can also influence or select upcoming maps.
+## ✨ Features
 
-## 🔫 Deagle Arena
+### ⚔️ Tactics Arena
 
-Deagle Arena is a **Free-for-All mode focused entirely on the Desert Eagle**.
+Tactics Arena is a team-based PvP mode in which **Angels of Death** and **Yakuza** compete against each other across multiple maps.
 
-Players can create their own lobbies and customize settings such as:
+- Automatic team distribution
+- Round-based gameplay
+- Automatic map rotation
+- Individual kill, death and damage tracking
+- Performance-based rewards
+- Spectator system
+- MVP tracking
+- VIP-based map selection
 
-- Lobby name
-- Player limit
-- Password protection
-- Welcome message
+### 🔫 Deagle Arena
+
+Deagle Arena is a **Free-for-All mode** focused exclusively on Desert Eagle combat.
+
+Players can create and customize their own lobbies with the following options:
+
+- Custom lobby names
+- Adjustable player limits
+- Password-protected lobbies
+- Custom welcome messages
 - Map selection
+- Additional VIP lobby features
 
-VIP players receive additional options such as larger player limits, persistent lobbies and additional maps.
+### 💥 Deathmatch Arena
 
-## 💥 Deathmatch Arena
+Deathmatch Arena offers classic **Free-for-All combat** with multiple weapons and customizable player lobbies.
 
-Deathmatch Arena provides classic **Free-for-All deathmatch gameplay** with multiple weapons, including the Desert Eagle, MP5, M4 and Rifle.
+- Desert Eagle, MP5, M4 and Rifle
+- Custom lobby creation
+- Adjustable lobby settings
+- Multiple playable maps
+- VIP-exclusive lobby options
 
-Just like in Deagle Arena, players can create and configure their own lobbies with different maps and settings.
+### 👤 Accounts & Player Progression
 
-## 👤 Accounts & Progression
+- Account registration and login
+- Persistent MySQL player data
+- Player money and GDM Coins
+- Playtime tracking
+- Kill, death and damage statistics
+- Individual arena progression
+- Unlocked character skins
+- VIP status management
+- MVP statistics
 
-Redfield Deathmatch includes its own **registration and login system with MySQL persistence**.
+### 💰 Economy & Coins
 
-Player progress is permanently stored, including:
+- Money rewards for kills and damage
+- Tactics match rewards
+- Payday system
+- Minigame rewards
+- GDM Coins premium currency
+- Weapon shop
 
-- Money and Coins
-- Playtime
-- Kills and deaths
-- Damage dealt
-- Individual arena statistics
-- Unlocked skins
-- VIP status
-- Achievements
-- MVPs
+### 📦 Lootboxes & Skins
 
-## 💰 Economy & Coins
+- Unlockable GTA:SA character skins
+- Multiple rarity levels, from Common to Mythic
+- Permanent skin unlocks
+- Skin selection system
+- Lootbox rewards
+- Free lootbox distribution under certain conditions
 
-Players earn money by actively playing the gamemode.
+### 💎 VIP System
 
-Rewards can be earned through kills, damage, Tactics matches, paydays and various minigames.
+Redfield Deathmatch features three VIP ranks, each offering additional gameplay benefits and customization options.
 
-The gamemode also includes its own premium currency called **GDM Coins**, which can be used for features such as VIP ranks and lootboxes.
+- Bronze VIP
+- Silver VIP
+- Gold VIP
 
-## 📦 Lootboxes & Skins
+Depending on the VIP rank, players can receive:
 
-The lootbox system allows players to unlock different **GTA:SA character skins**.
+- Increased lobby player limits
+- Persistent lobby settings
+- Additional playable maps
+- Improved gameplay rewards
+- Shop discounts
+- Tactics map selection
 
-Skins are divided into multiple rarity levels ranging from common to mythic. Once unlocked, skins are permanently added to the player's account and can be selected later.
+### 🏆 Achievements & Statistics
 
-The gamemode can also distribute free lootboxes to active players under certain conditions.
+- Persistent achievement system
+- Progression milestones
+- Arena-specific statistics
+- Kill, death and damage tracking
+- Playtime statistics
+- Player leaderboards
 
-## 💎 VIP System
+### 🎮 Additional Gameplay Systems
 
-Redfield Deathmatch includes three VIP levels:
+- Random chat minigames
+- Custom damage and hit handling
+- Spectator functionality
+- Tutorial and help system
 
-- 🥉 Bronze
-- 🥈 Silver
-- 🥇 Gold
+### 🛡️ Administration
 
-Depending on the VIP level, players receive additional benefits such as larger lobbies, persistent lobby settings, improved rewards, shop discounts, additional maps and the ability to select upcoming Tactics maps.
+- Administration system
+- Server management functionality
 
-## 🏆 Achievements & Statistics
+### 🖥️ User Interface
 
-The gamemode includes a persistent achievement system that rewards players for reaching different milestones.
-
-Extensive statistics are also tracked separately for the different arenas, including kills, deaths, damage, playtime and other progression values.
-
-A leaderboard system allows players to compare their progress and statistics with other players.
-
-## 🎲 Additional Systems
-
-Redfield Deathmatch includes several additional systems beyond the main PvP modes:
-
-- Custom HUD and scoreboard
+- Custom HUD
+- Scoreboard
 - Custom nametags
 - Notifications and infoboxes
-- Weapon shop
-- Payday system
-- Random chat minigames
-- Tutorial and help menu
 - Custom chat system
-- Administration system
-- Leaderboards
-- Skin system
-- Custom damage and hit handling
 - German and English language support
+
+---
 
 ## ⚙️ Installation
 
-1. Place `RedfieldDeathmatch` inside your MTA server's `resources` directory.
-2. Create/import the required database tables.
-3. Configure the database connection for your environment (RegisterLogin/sRegisterLogin.lua).
-5. Start the resource on your MTA server.
+### Requirements
+
+- Multi Theft Auto: San Andreas server
+- MySQL database
+
+### Setup
+
+**1. Download the repository**
+
+Clone the repository or download the source code.
+
+**2. Install the resource**
+
+Place the gamemode inside your MTA server's `resources` directory.
+
+```text
+resources/
+└── RedfieldDeathmatch/
+```
+
+**3. Set up the database**
+
+Create a MySQL database and import or create the required database tables.
+
+**4. Configure the database connection**
+
+Open the following file:
+
+```text
+RegisterLogin/sRegisterLogin.lua
+```
+
+Update the database connection settings to match your server environment.
+
+**5. Start the resource**
+
+Start the gamemode using your MTA server console.
+
+```text
+start RedfieldDeathmatch
+```
+
+**6. Verify the installation**
+
+Check the server console for errors and ensure that the database connection and required systems are functioning correctly.
+
+---
 
 ## 🎬 Media
 
-* https://youtu.be/w5DOkOPpvhg   
-* https://youtu.be/1HbyP3JzqlQ
+- **[Gameplay Video #1](https://youtu.be/w5DOkOPpvhg)**
+- **[Gameplay Video #2](https://youtu.be/1HbyP3JzqlQ)**
+
+### Screenshots
+
+A collection of screenshots showcasing the gamemode's arenas, interfaces and gameplay features.
 
 <p align="center">
   <img src="Screenshots/1.png" width="350">
   <img src="Screenshots/2.png" width="350">
-  <img src="Screenshots/3.png" width="350">   
+  <img src="Screenshots/3.png" width="350">
   <img src="Screenshots/4.png" width="350">
   <img src="Screenshots/5.png" width="350">
-  <img src="Screenshots/6.png" width="350">   
+  <img src="Screenshots/6.png" width="350">
+</p>
+
+<details>
+<summary><b>View More Screenshots</b></summary>
+
+<p align="center">
   <img src="Screenshots/7.png" width="350">
   <img src="Screenshots/8.png" width="350">
   <img src="Screenshots/9.png" width="350">
   <img src="Screenshots/10.png" width="350">
-  <img src="Screenshots/11.png" width="350">   
+  <img src="Screenshots/11.png" width="350">
   <img src="Screenshots/12.png" width="350">
   <img src="Screenshots/13.png" width="350">
-  <img src="Screenshots/14.png" width="350">   
+  <img src="Screenshots/14.png" width="350">
   <img src="Screenshots/15.png" width="350">
   <img src="Screenshots/16.png" width="350">
   <img src="Screenshots/17.png" width="350">
   <img src="Screenshots/18.png" width="350">
-  <img src="Screenshots/19.png" width="350">   
+  <img src="Screenshots/19.png" width="350">
   <img src="Screenshots/20.png" width="350">
   <img src="Screenshots/21.png" width="350">
 </p>
 
-## 📊 Statistics 
+</details>
 
-|Category|Amount|
-|---|---|
-LUA files|40|
-other files|363|
-functions|313|
-lines|5583|
-characters|266772|
-comment-lines|367|
-comment-characters|5027|
+---
+
+## 📊 Project Statistics
+
+| Metric | Count |
+|---|---:|
+| Lua Files | 40 |
+| Additional Files | 363 |
+| Functions | 313 |
+| Lines | 5,583 |
+| Characters | 266,772 |
+| Comment Lines | 367 |
+| Comment Characters | 5,027 |
