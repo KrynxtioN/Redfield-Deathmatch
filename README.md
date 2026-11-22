@@ -177,8 +177,7 @@ Check the server console for errors and ensure that the database connection and 
 
 ## 🎬 Media
 
-- **[Gameplay Video #1](https://youtu.be/w5DOkOPpvhg)**
-- **[Gameplay Video #2](https://youtu.be/1HbyP3JzqlQ)**
+- **[Watch Gameplay on YouTube](https://youtu.be/w5DOkOPpvhg)**
 
 ### Screenshots
 
